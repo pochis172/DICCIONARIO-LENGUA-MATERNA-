@@ -1,0 +1,28 @@
+@startuml DICCIONARIO
+
+package "Frontend" {
+  [HTML]
+  [CSS]
+  [JavaScript]
+}
+
+package "Backend" {
+  [API REST]
+  [Controlador]
+}
+
+package "Base de Datos" {
+  [MySQL]
+}
+
+package "Recursos" {
+  [Audios]
+}
+
+[HTML] --> [JavaScript]
+[JavaScript] --> [API REST]
+[API REST] --> [Controlador]
+[Controlador] --> [MySQL]
+[Controlador] --> [Audios]
+
+@enduml

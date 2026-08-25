@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mi espacio | Diccionario</title><link rel="stylesheet" href="/css/styles.css"></head>
+<body>
+<header class="nav"><div class="container nav-inner"><a class="brand" href="/"><span class="brand-mark">DM</span><span class="brand-text">Diccionario Materno<small>Español → Lengua Materna</small></span></a><nav class="nav-links"><a href="/">Inicio</a><a data-admin-only class="hidden" href="/admin.html">Administración</a><button data-logout>Salir</button></nav></div></header>
+<section class="page-header"><div class="container"><span class="eyebrow">Cuenta de usuario</span><h1>Mi espacio</h1><p class="muted">Favoritos, historial, sugerencias y configuración básica del perfil.</p></div></section>
+<main class="container dashboard">
+  <aside class="sidebar">
+    <button class="active" data-panel="resumen">Resumen</button>
+    <button data-panel="favoritos">Favoritos</button>
+    <button data-panel="historial">Historial</button>
+    <button data-panel="sugerencias">Sugerencias</button>
+    <button data-panel="cuenta">Mi cuenta</button>
+  </aside>
+  <section>
+    <div id="resumen" class="panel active"><div class="panel-title"><h2>Hola, <span data-user-name>usuario</span></h2></div><div class="grid grid-3"><div class="card"><span class="eyebrow">Favoritos</span><h3 id="favCount">0</h3><p class="muted">Palabras guardadas.</p></div><div class="card"><span class="eyebrow">Historial</span><h3 id="historyCount">0</h3><p class="muted">Consultas recientes.</p></div><div class="card"><span class="eyebrow">Aportes</span><h3 id="suggestCount">0</h3><p class="muted">Sugerencias realizadas.</p></div></div><div class="card" style="margin-top:18px"><h3>Acceso rápido</h3><div class="actions" style="justify-content:flex-start"><a class="btn btn-primary" href="/#diccionario">Buscar palabra</a><button class="btn btn-secondary" onclick="openPanel('sugerencias')">Sugerir palabra</button></div></div></div>
+
+    <div id="favoritos" class="panel"><div class="panel-title"><div><h2>Favoritos</h2><p class="muted">Palabras que guardaste para consultar después.</p></div></div><div id="favoritesList" class="grid grid-3"></div></div>
+
+    <div id="historial" class="panel"><div class="panel-title"><div><h2>Historial</h2><p class="muted">Tus últimas búsquedas registradas.</p></div><button id="clearHistory" class="btn btn-danger btn-sm">Limpiar historial</button></div><div id="historyList" class="list"></div></div>
+
+    <div id="sugerencias" class="panel"><div class="panel-title"><div><h2>Mis sugerencias</h2><p class="muted">Propón palabras para enriquecer el diccionario.</p></div><button id="newSuggestion" class="btn btn-primary">Nueva sugerencia</button></div><div id="suggestionsList" class="list"></div></div>
+
+    <div id="cuenta" class="panel"><div class="panel-title"><h2>Mi cuenta</h2></div><div class="grid grid-3" style="grid-template-columns:1fr 1fr"><form id="profileForm" class="card form"><h3 style="margin:0">Datos personales</h3><div class="field"><label>Nombre</label><input id="profileName" required maxlength="100"></div><div class="field"><label>Correo</label><input id="profileEmail" disabled></div><button class="btn btn-primary">Guardar nombre</button></form><form id="passwordForm" class="card form"><h3 style="margin:0">Cambiar contraseña</h3><div class="field"><label>Contraseña actual</label><input type="password" id="oldPassword" required minlength="6"></div><div class="field"><label>Nueva contraseña</label><input type="password" id="newPassword" required minlength="6"></div><button class="btn btn-primary">Actualizar contraseña</button></form></div></div>
+  </section>
+</main>
+
+<div id="suggestionModal" class="modal hidden"><div class="modal-card"><div class="modal-head"><h3 id="suggestionTitle">Nueva sugerencia</h3><button class="modal-close" data-close>×</button></div><form id="suggestionForm" class="form"><input type="hidden" id="suggestionId"><div class="form-row"><div class="field"><label>Palabra en español</label><input id="suggestedWord" required maxlength="100"></div><div class="field"><label>Posible traducción</label><input id="suggestedTranslation" maxlength="150"></div></div><div class="field"><label>Lengua materna</label><select id="suggestedLanguage"><option value="">Seleccionar…</option></select></div><div class="field"><label>Descripción o ejemplo</label><textarea id="suggestedDescription" maxlength="255"></textarea></div><div class="actions"><button type="button" class="btn btn-secondary" data-close>Cancelar</button><button class="btn btn-primary">Guardar sugerencia</button></div></form></div></div>
+<script src="/js/api.js"></script><script src="/js/perfil.js"></script></body></html>

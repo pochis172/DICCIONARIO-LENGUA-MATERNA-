@@ -1,0 +1,14 @@
+@startuml DICCIONARIO
+actor Usuariop
+participant "Interfaz Web" as UI
+participant "Servidor" as Server
+database "Base de Datos" as DB
+
+Usuario -> UI : Ingresa palabra
+UI -> Server : Solicitar traducción
+Server -> DB : Consultar palabra
+DB --> Server : Retorna datos
+Server --> UI : Traducción + audio
+UI --> Usuario : Mostrar resultado
+
+@enduml
