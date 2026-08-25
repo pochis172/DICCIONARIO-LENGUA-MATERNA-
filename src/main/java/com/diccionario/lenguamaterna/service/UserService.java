@@ -38,6 +38,23 @@ public class UserService {
         this.dictionaryService = dictionaryService;
         this.passwordEncoder = passwordEncoder;
     }
+    @Transactional(readOnly = true)
+public UsuarioResponse obtenerPerfil(Long usuarioId) {
+
+    Usuario usuario = usuarioRepository.findById(usuarioId)
+            .orElseThrow(() -> new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Usuario no encontrado."
+            ));
+
+    return new UsuarioResponse(
+            usuario.getId(),
+            usuario.getNombre(),
+            usuario.getCorreo(),
+            usuario.getRol().getNombre()
+    );
+}
+
 
     @Transactional
     public UsuarioResponse actualizarPerfil(Long usuarioId, PerfilRequest request) {
