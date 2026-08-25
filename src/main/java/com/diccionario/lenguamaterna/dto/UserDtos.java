@@ -1,5 +1,6 @@
 package com.diccionario.lenguamaterna.dto;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
@@ -7,7 +8,16 @@ import java.time.LocalDateTime;
 public final class UserDtos {
     private UserDtos() {}
 
-    public record PerfilRequest(@NotBlank @Size(max = 100) String nombre) {}
+    public record PerfilRequest(
+    @NotBlank
+    @Size(max = 100)
+    String nombre,
+
+    @NotBlank
+    @Email
+    @Size(max = 120)
+    String correo
+) {}
     public record PasswordRequest(@NotBlank @Size(min = 6, max = 100) String actual, @NotBlank @Size(min = 6, max = 100) String nueva) {}
 
     public record HistorialResponse(Long id, Long palabraId, String palabra, String traduccion, LocalDateTime fecha) {}
