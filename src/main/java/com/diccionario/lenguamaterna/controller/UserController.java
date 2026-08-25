@@ -20,7 +20,13 @@ public class UserController {
     public UserController(UserService userService) {
         this.userService = userService;
     }
+    @GetMapping("/perfil")
+public UsuarioResponse obtenerPerfil(HttpSession session) {
 
+    Long usuarioId = SessionUtil.requireUserId(session);
+
+    return userService.obtenerPerfil(usuarioId);
+}
     @PutMapping("/perfil")
     public UsuarioResponse actualizarPerfil(@Valid @RequestBody PerfilRequest request, HttpSession session) {
         return userService.actualizarPerfil(SessionUtil.requireUserId(session), request);
