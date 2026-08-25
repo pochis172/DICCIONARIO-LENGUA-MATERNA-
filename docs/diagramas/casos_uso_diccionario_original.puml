@@ -1,0 +1,25 @@
+@startuml DICCIONARIO
+left to right direction
+skinparam packageStyle rectangle
+
+actor Usuario
+actor Administrador
+
+rectangle "Diccionario Virtual\nEspañol → Lengua Indígena" {
+
+  Usuario -- (Buscar palabra)
+  Usuario -- (Ver traducción)
+  Usuario -- (Escuchar pronunciación)
+  Usuario -- (Ver significado)
+  Usuario -- (Ver ejemplo de uso)
+
+  Administrador -- (Iniciar sesión)
+  Administrador -- (Agregar palabra)
+  Administrador -- (Editar palabra)
+  Administrador -- (Eliminar palabra)
+  Administrador -- (Subir audio)
+  Administrador -- (Validar contenido)
+
+}
+
+@enduml

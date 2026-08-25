@@ -1,0 +1,26 @@
+@startuml MODELO_IMPLEMENTADO
+entity Roles
+entity Usuarios
+entity Regiones
+entity Lenguas
+entity Palabras
+entity Traducciones
+entity Ejemplos
+entity Audios
+entity Historial
+entity Favoritos
+entity Sugerencias
+Roles ||--o{ Usuarios
+Usuarios ||--o{ Historial
+Usuarios ||--o{ Favoritos
+Usuarios ||--o{ Sugerencias
+Regiones ||--o{ Lenguas
+Lenguas ||--o{ Palabras
+Lenguas ||--o{ Traducciones
+Palabras ||--o{ Traducciones
+Palabras ||--o{ Ejemplos
+Palabras ||--o{ Audios
+Palabras ||--o{ Historial
+Palabras ||--o{ Favoritos
+Lenguas ||--o{ Sugerencias
+@enduml

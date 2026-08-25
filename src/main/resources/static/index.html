@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Diccionario Virtual Español a Lengua Materna" />
+  <title>Diccionario de Lenguas Maternas</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+<header class="nav">
+  <div class="container nav-inner">
+    <a class="brand" href="/"><span class="brand-mark">DM</span><span class="brand-text">Diccionario Materno<small>Español → Lengua Materna</small></span></a>
+    <nav class="nav-links">
+      <a class="hide-mobile" href="#diccionario">Diccionario</a>
+      <a class="hide-mobile" href="#categorias">Categorías</a>
+      <a data-user-only class="hidden hide-mobile" href="/perfil.html">Mi espacio</a>
+      <a data-admin-only class="hidden hide-mobile" href="/admin.html">Administración</a>
+      <a data-guest-only href="/login.html">Ingresar</a>
+      <a data-guest-only class="primary" href="/registro.html">Registrarse</a>
+      <button data-user-only data-logout class="hidden">Salir</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero" id="diccionario">
+    <div class="container hero-grid">
+      <div>
+        <span class="eyebrow">Preservación lingüística y cultural</span>
+        <h1>Las palabras guardan memoria.</h1>
+        <p>Explora traducciones del español a lenguas maternas, conoce su significado, aprende con ejemplos y escucha su pronunciación cuando haya audio disponible.</p>
+        <form id="searchForm" class="search-box">
+          <input id="searchInput" autocomplete="off" placeholder="Escribe una palabra en español…" required />
+          <select id="languageSelect"><option value="">Todas las lenguas</option></select>
+          <button class="btn btn-primary" type="submit">Buscar</button>
+        </form>
+        <p class="muted" style="font-size:13px;margin-top:10px">Prueba con: Agua, Casa, Perro, Sol o Montaña.</p>
+      </div>
+      <div class="hero-art" aria-hidden="true"><div class="culture-circle"></div></div>
+    </div>
+  </section>
+
+  <section id="searchResults" class="section hidden">
+    <div class="container">
+      <div class="section-head"><div><h2>Resultados</h2><p id="resultCount"></p></div></div>
+      <div id="resultDetail" class="result-panel"></div>
+      <div id="resultList" class="grid grid-3" style="margin-top:20px"></div>
+    </div>
+  </section>
+
+  <section class="section" id="categorias">
+    <div class="container">
+      <div class="section-head"><div><h2>Explorar por categorías</h2><p>Encuentra palabras relacionadas con la vida diaria, la naturaleza y la comunidad.</p></div></div>
+      <div id="categoryList" class="categories"></div>
+    </div>
+  </section>
+
+  <section class="section soft">
+    <div class="container">
+      <div class="section-head"><div><h2>Palabras del diccionario</h2><p>Contenido inicial de demostración. El administrador puede ampliarlo desde el panel.</p></div></div>
+      <div id="recentWords" class="grid grid-3"></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid grid-3">
+      <article class="card"><span class="eyebrow">Aprender</span><h3>Significado contextual</h3><p class="muted">Cada entrada puede incluir significado y ejemplos de uso para que una palabra no aparezca aislada de su contexto.</p></article>
+      <article class="card"><span class="eyebrow">Escuchar</span><h3>Pronunciación</h3><p class="muted">Los audios pueden almacenarse localmente o mediante una URL para apoyar el aprendizaje oral.</p></article>
+      <article class="card"><span class="eyebrow">Participar</span><h3>Sugerir nuevas palabras</h3><p class="muted">Los usuarios registrados pueden proponer contenido y consultar el estado de sus sugerencias.</p></article>
+    </div>
+  </section>
+</main>
+
+<footer class="footer"><div class="container footer-inner"><div><strong>Diccionario de Lenguas Maternas</strong><br><small>Proyecto académico de preservación lingüística y cultural.</small></div><small>Versión web • Spring Boot + MySQL</small></div></footer>
+<script src="/js/api.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>

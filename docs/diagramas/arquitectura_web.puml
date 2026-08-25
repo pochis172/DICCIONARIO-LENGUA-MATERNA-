@@ -1,0 +1,19 @@
+@startuml DICCIONARIO_WEB
+package "Navegador" {
+  [HTML]
+  [CSS]
+  [JavaScript]
+}
+package "Spring Boot" {
+  [REST Controllers]
+  [Services]
+  [Repositories JPA]
+}
+database "MySQL\ndiccionario_lengua_materna" as DB
+folder "uploads/audio" as AUDIO
+[JavaScript] --> [REST Controllers] : HTTP / JSON
+[REST Controllers] --> [Services]
+[Services] --> [Repositories JPA]
+[Repositories JPA] --> DB
+[REST Controllers] --> AUDIO : carga audio
+@enduml

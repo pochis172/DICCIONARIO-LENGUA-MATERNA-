@@ -1,0 +1,29 @@
+DICCIONARIO DE LENGUAS MATERNAS - PROYECTO WEB
+
+1) Abre esta carpeta completa en Visual Studio Code.
+2) Inicia MySQL (por ejemplo desde XAMPP).
+3) Abre la terminal de VS Code.
+4) Ejecuta en Windows:
+
+   .\mvnw.cmd spring-boot:run
+
+5) Espera a que aparezca que Spring inició en el puerto 8080.
+6) Abre en el navegador:
+
+   http://localhost:8080
+
+CONFIGURACIÓN MYSQL POR DEFECTO
+- servidor: localhost
+- puerto: 3306
+- usuario: root
+- contraseña: vacía
+- base: diccionario_lengua_materna
+
+Si MySQL tiene contraseña, revisa README.md.
+
+ADMINISTRADOR DE DEMOSTRACIÓN
+correo: admin@diccionario.local
+contraseña: Admin123*
+
+IMPORTANTE:
+La aplicación crea las tablas automáticamente con JPA y también se incluye database/schema.sql como respaldo académico.

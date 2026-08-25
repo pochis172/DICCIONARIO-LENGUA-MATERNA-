@@ -1,0 +1,39 @@
+@startuml DICCIONARIO
+skinparam classAttributeIconSize 0
+
+class Usuario {
+  +id_usuario
+  +nombre
+  +rol
+}
+
+class Administrador {
+  +login()
+  +gestionarPalabras()
+}
+
+class Palabra {
+  +id_palabra
+  +espanol
+  +lengua_indigena
+  +categoria
+  +significado
+  +ejemplo
+}
+
+class Audio {
+  +id_audio
+  +ruta
+  +duracion
+}
+
+class Diccionario {
+  +buscarPalabra()
+  +mostrarTraduccion()
+}
+
+Usuario <|-- Administrador
+Diccionario "1" -- "many" Palabra
+Palabra "1" -- "1" Audio
+
+@enduml
