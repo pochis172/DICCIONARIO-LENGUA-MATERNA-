@@ -21,5 +21,31 @@ function closeSuggestionModal(){suggestionModal.classList.add('hidden');}
 function editSuggestion(id){openSuggestionModal(suggestions.find(s=>s.id===id));}
 async function saveSuggestion(e){e.preventDefault();const id=suggestionId.value;const payload={palabraSugerida:suggestedWord.value.trim(),posibleTraduccion:suggestedTranslation.value.trim()||null,lenguaId:suggestedLanguage.value?Number(suggestedLanguage.value):null,descripcion:suggestedDescription.value.trim()||null};try{await App.request(id?'/api/sugerencias/'+id:'/api/sugerencias',{method:id?'PUT':'POST',body:JSON.stringify(payload)});closeSuggestionModal();App.toast(id?'Sugerencia actualizada.':'Sugerencia enviada.');await loadSuggestions();}catch(e){App.toast(e.message);}}
 async function deleteSuggestion(id){if(!confirm('¿Eliminar esta sugerencia?'))return;await App.request('/api/sugerencias/'+id,{method:'DELETE'});App.toast('Sugerencia eliminada.');await loadSuggestions();}
-async function saveProfile(e){e.preventDefault();try{user=await App.request('/api/usuario/perfil',{method:'PUT',body:JSON.stringify({nombre:profileName.value.trim()})});App.toast('Perfil actualizado.');document.querySelectorAll('[data-user-name]').forEach(el=>el.textContent=user.nombre);}catch(e){App.toast(e.message);}}
+async function saveProfile(e) {
+  e.preventDefault();
+
+  const payload = {
+    nombre: profileName.value.trim(),
+    correo: profileEmail.value.trim()
+  };
+
+  try {
+    user = await App.request('/api/usuario/perfil', {
+      method: 'PUT',
+      body: JSON.stringify(payload)
+    });
+
+    profileName.value = user.nombre;
+    profileEmail.value = user.correo;
+
+    document
+      .querySelectorAll('[data-user-name]')
+      .forEach(el => el.textContent = user.nombre);
+
+    App.toast('Perfil actualizado correctamente.');
+
+  } catch (e) {
+    App.toast(e.message);
+  }
+}
 async function changePassword(e){e.preventDefault();try{await App.request('/api/usuario/password',{method:'PUT',body:JSON.stringify({actual:oldPassword.value,nueva:newPassword.value})});oldPassword.value='';newPassword.value='';App.toast('Contraseña actualizada.');}catch(e){App.toast(e.message);}}
