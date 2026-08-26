@@ -6,7 +6,6 @@ import com.diccionario.lenguamaterna.dto.DictionaryDtos.PalabraResponse;
 import com.diccionario.lenguamaterna.dto.UserDtos.EstadoSugerenciaRequest;
 import com.diccionario.lenguamaterna.dto.UserDtos.SugerenciaResponse;
 import com.diccionario.lenguamaterna.service.AdminService;
-import com.diccionario.lenguamaterna.service.DictionaryService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -28,68 +27,204 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {
-    private static final Set<String> AUDIO_EXTENSIONS = Set.of("mp3", "wav", "ogg", "m4a");
+
+    private static final Set<String> AUDIO_EXTENSIONS =
+            Set.of(
+                    "mp3",
+                    "wav",
+                    "ogg",
+                    "m4a"
+            );
 
     private final AdminService adminService;
-    private final DictionaryService dictionaryService;
 
-    public AdminController(AdminService adminService, DictionaryService dictionaryService) {
+    public AdminController(
+            AdminService adminService
+    ) {
         this.adminService = adminService;
-        this.dictionaryService = dictionaryService;
     }
 
+    /*
+     * GET
+     * /api/admin/palabras
+     *
+     * También permite:
+     * /api/admin/palabras?q=casa
+     */
     @GetMapping("/palabras")
-    public List<PalabraResponse> palabras(@RequestParam(required = false) String q, HttpSession session) {
+    public ResponseEntity<List<PalabraResponse>> palabras(
+            @RequestParam(required = false) String q,
+            HttpSession session
+    ) {
+
         SessionUtil.requireAdmin(session);
-        return adminService.listarPalabras(q);
+
+        return ResponseEntity.ok(
+                adminService.listarPalabras(q)
+        );
     }
 
+    /*
+     * POST
+     * /api/admin/palabras
+     *
+     * Retorna 201 Created.
+     */
     @PostMapping("/palabras")
-    public PalabraResponse crearPalabra(@Valid @RequestBody PalabraRequest request, HttpSession session) {
+    public ResponseEntity<PalabraResponse> crearPalabra(
+            @Valid @RequestBody PalabraRequest request,
+            HttpSession session
+    ) {
+
         SessionUtil.requireAdmin(session);
-        return adminService.crear(request);
+
+        PalabraResponse creada =
+                adminService.crear(request);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(creada);
     }
 
+    /*
+     * PUT
+     * /api/admin/palabras/{id}
+     */
     @PutMapping("/palabras/{id}")
-    public PalabraResponse editarPalabra(@PathVariable Long id, @Valid @RequestBody PalabraRequest request, HttpSession session) {
+    public ResponseEntity<PalabraResponse> editarPalabra(
+            @PathVariable Long id,
+            @Valid @RequestBody PalabraRequest request,
+            HttpSession session
+    ) {
+
         SessionUtil.requireAdmin(session);
-        return adminService.editar(id, request);
+
+        return ResponseEntity.ok(
+                adminService.editar(
+                        id,
+                        request
+                )
+        );
     }
 
+    /*
+     * DELETE
+     * /api/admin/palabras/{id}
+     */
     @DeleteMapping("/palabras/{id}")
-    public ResponseEntity<Void> eliminarPalabra(@PathVariable Long id, HttpSession session) {
+    public ResponseEntity<Void> eliminarPalabra(
+            @PathVariable Long id,
+            HttpSession session
+    ) {
+
         SessionUtil.requireAdmin(session);
+
         adminService.eliminar(id);
-        return ResponseEntity.noContent().build();
+
+        return ResponseEntity
+                .noContent()
+                .build();
     }
 
+    /*
+     * SUGERENCIAS
+     */
     @GetMapping("/sugerencias")
-    public List<SugerenciaResponse> sugerencias(HttpSession session) {
+    public List<SugerenciaResponse> sugerencias(
+            HttpSession session
+    ) {
+
         SessionUtil.requireAdmin(session);
+
         return adminService.sugerencias();
     }
 
     @PatchMapping("/sugerencias/{id}/estado")
-    public SugerenciaResponse estado(@PathVariable Long id, @Valid @RequestBody EstadoSugerenciaRequest request, HttpSession session) {
+    public SugerenciaResponse estado(
+            @PathVariable Long id,
+            @Valid
+            @RequestBody
+            EstadoSugerenciaRequest request,
+            HttpSession session
+    ) {
+
         SessionUtil.requireAdmin(session);
-        return adminService.cambiarEstadoSugerencia(id, request.estado());
+
+        return adminService
+                .cambiarEstadoSugerencia(
+                        id,
+                        request.estado()
+                );
     }
 
+    /*
+     * SUBIDA DE AUDIO
+     */
     @PostMapping("/audio/upload")
-    public Map<String, String> subirAudio(@RequestParam("file") MultipartFile file, HttpSession session) throws IOException {
-        SessionUtil.requireAdmin(session);
-        if (file.isEmpty()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Selecciona un archivo de audio.");
+    public Map<String, String> subirAudio(
+            @RequestParam("file")
+            MultipartFile file,
+            HttpSession session
+    ) throws IOException {
 
-        String original = StringUtils.cleanPath(file.getOriginalFilename() == null ? "audio" : file.getOriginalFilename());
-        String extension = original.contains(".") ? original.substring(original.lastIndexOf('.') + 1).toLowerCase() : "";
-        if (!AUDIO_EXTENSIONS.contains(extension)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Formato no permitido. Usa MP3, WAV, OGG o M4A.");
+        SessionUtil.requireAdmin(session);
+
+        if (file.isEmpty()) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Selecciona un archivo de audio."
+            );
         }
 
-        Path dir = Path.of("uploads", "audio");
-        Files.createDirectories(dir);
-        String nombre = UUID.randomUUID() + "." + extension;
-        Files.copy(file.getInputStream(), dir.resolve(nombre), StandardCopyOption.REPLACE_EXISTING);
-        return Map.of("url", "/uploads/audio/" + nombre);
+        String original =
+                StringUtils.cleanPath(
+                        file.getOriginalFilename() == null
+                                ? "audio"
+                                : file.getOriginalFilename()
+                );
+
+        String extension =
+                original.contains(".")
+                        ? original
+                        .substring(
+                                original.lastIndexOf('.') + 1
+                        )
+                        .toLowerCase()
+                        : "";
+
+        if (!AUDIO_EXTENSIONS.contains(extension)) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Formato no permitido. Usa MP3, WAV, OGG o M4A."
+            );
+        }
+
+        Path directorio =
+                Path.of(
+                        "uploads",
+                        "audio"
+                );
+
+        Files.createDirectories(
+                directorio
+        );
+
+        String nombre =
+                UUID.randomUUID()
+                        + "."
+                        + extension;
+
+        Files.copy(
+                file.getInputStream(),
+                directorio.resolve(nombre),
+                StandardCopyOption.REPLACE_EXISTING
+        );
+
+        return Map.of(
+                "url",
+                "/uploads/audio/" + nombre
+        );
     }
 }
