@@ -1,15 +1,449 @@
 <!doctype html>
-<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Administración | Diccionario</title><link rel="stylesheet" href="/css/styles.css"></head>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Administración | Diccionario</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+
 <body>
-<header class="nav"><div class="container nav-inner"><a class="brand" href="/"><span class="brand-mark">DM</span><span class="brand-text">Diccionario Materno<small>Panel de administración</small></span></a><nav class="nav-links"><a href="/">Ver sitio</a><a href="/perfil.html">Mi cuenta</a><button data-logout>Salir</button></nav></div></header>
-<section class="page-header"><div class="container"><span class="eyebrow">Administrador</span><h1>Gestión del diccionario</h1><p class="muted">Administra palabras, traducciones, ejemplos, audios y sugerencias de usuarios.</p></div></section>
+
+<header class="nav">
+  <div class="container nav-inner">
+    <a class="brand" href="/">
+      <span class="brand-mark">DM</span>
+      <span class="brand-text">
+        Diccionario Materno
+        <small>Panel de administración</small>
+      </span>
+    </a>
+
+    <nav class="nav-links">
+      <a href="/">Ver sitio</a>
+      <a href="/perfil.html">Mi cuenta</a>
+      <button data-logout>Salir</button>
+    </nav>
+  </div>
+</header>
+
+<section class="page-header">
+  <div class="container">
+    <span class="eyebrow">Administrador</span>
+    <h1>Gestión del diccionario</h1>
+    <p class="muted">
+      Administra palabras, idiomas, traducciones, ejemplos,
+      audios y sugerencias de usuarios.
+    </p>
+  </div>
+</section>
+
 <main class="container dashboard">
-  <aside class="sidebar"><button class="active" data-panel="words">Palabras</button><button data-panel="suggestions">Sugerencias</button></aside>
+
+  <aside class="sidebar">
+    <button class="active" data-panel="words">Palabras</button>
+
+    <button data-panel="languages">
+      Idiomas
+    </button>
+
+    <button data-panel="suggestions">
+      Sugerencias
+    </button>
+  </aside>
+
   <section>
-    <div id="words" class="panel active"><div class="panel-title"><div><h2>Palabras oficiales</h2><p class="muted">CRUD principal del diccionario.</p></div><button id="newWord" class="btn btn-primary">Agregar palabra</button></div><div class="search-box" style="margin:0 0 18px"><input id="adminSearch" placeholder="Buscar palabra…"><button id="adminSearchBtn" class="btn btn-secondary">Buscar</button></div><div class="table-wrap"><table><thead><tr><th>Español</th><th>Traducción</th><th>Lengua</th><th>Categoría</th><th>Acciones</th></tr></thead><tbody id="wordRows"></tbody></table></div></div>
-    <div id="suggestions" class="panel"><div class="panel-title"><div><h2>Sugerencias de usuarios</h2><p class="muted">Revisa, aprueba o rechaza aportes.</p></div></div><div id="adminSuggestions" class="list"></div></div>
+
+    <!-- PANEL PALABRAS -->
+    <div id="words" class="panel active">
+
+      <div class="panel-title">
+        <div>
+          <h2>Palabras oficiales</h2>
+          <p class="muted">
+            CRUD principal del diccionario.
+          </p>
+        </div>
+
+        <button id="newWord" class="btn btn-primary">
+          Agregar palabra
+        </button>
+      </div>
+
+      <div class="search-box" style="margin:0 0 18px">
+
+        <input
+          id="adminSearch"
+          placeholder="Buscar palabra…"
+        >
+
+        <button
+          id="adminSearchBtn"
+          class="btn btn-secondary"
+        >
+          Buscar
+        </button>
+
+      </div>
+
+      <div class="table-wrap">
+
+        <table>
+
+          <thead>
+          <tr>
+            <th>Español</th>
+            <th>Traducción</th>
+            <th>Lengua</th>
+            <th>Categoría</th>
+            <th>Acciones</th>
+          </tr>
+          </thead>
+
+          <tbody id="wordRows"></tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+
+    <!-- PANEL IDIOMAS - ALEXIS -->
+    <div id="languages" class="panel">
+
+      <div class="panel-title">
+
+        <div>
+          <h2>Idiomas registrados</h2>
+
+          <p class="muted">
+            Gestión de las lenguas maternas disponibles
+            en el diccionario.
+          </p>
+        </div>
+
+        <button
+          id="newLanguage"
+          class="btn btn-primary"
+        >
+          Agregar idioma
+        </button>
+
+      </div>
+
+      <div
+        id="languageListMessage"
+        class="form-message hidden"
+      ></div>
+
+      <div class="table-wrap">
+
+        <table>
+
+          <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Región</th>
+            <th>Familia lingüística</th>
+            <th>Acciones</th>
+          </tr>
+          </thead>
+
+          <tbody id="languageRows"></tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+
+    <!-- PANEL SUGERENCIAS -->
+    <div id="suggestions" class="panel">
+
+      <div class="panel-title">
+
+        <div>
+          <h2>Sugerencias de usuarios</h2>
+
+          <p class="muted">
+            Revisa, aprueba o rechaza aportes.
+          </p>
+        </div>
+
+      </div>
+
+      <div
+        id="adminSuggestions"
+        class="list"
+      ></div>
+
+    </div>
+
   </section>
+
 </main>
 
-<div id="wordModal" class="modal hidden"><div class="modal-card"><div class="modal-head"><h3 id="wordModalTitle">Agregar palabra</h3><button class="modal-close" data-close-word>×</button></div><form id="wordForm" class="form"><input type="hidden" id="wordId"><div class="form-row"><div class="field"><label>Palabra en español</label><input id="wordSpanish" required maxlength="120"></div><div class="field"><label>Categoría</label><input id="wordCategory" required maxlength="80" placeholder="Naturaleza, Animales…"></div></div><div class="field"><label>Lengua materna</label><select id="wordLanguage" required></select></div><div class="field"><label>Traducción principal</label><input id="wordTranslation" required maxlength="150"></div><div class="field"><label>Significado</label><textarea id="wordMeaning" required maxlength="500"></textarea></div><div class="field"><label>Ejemplo de uso</label><textarea id="wordExample" maxlength="255"></textarea></div><div class="field"><label>Audio de pronunciación</label><input type="file" id="audioFile" accept="audio/*"><small class="muted">Opcional. Formatos: MP3, WAV, OGG o M4A.</small><input id="audioUrl" placeholder="o pega una URL / ruta de audio"></div><div id="wordMessage" class="form-message hidden"></div><div class="actions"><button type="button" class="btn btn-secondary" data-close-word>Cancelar</button><button class="btn btn-primary">Guardar palabra</button></div></form></div></div>
-<script src="/js/api.js"></script><script src="/js/admin.js"></script></body></html>
+
+<!-- MODAL PALABRAS -->
+<div id="wordModal" class="modal hidden">
+
+  <div class="modal-card">
+
+    <div class="modal-head">
+
+      <h3 id="wordModalTitle">
+        Agregar palabra
+      </h3>
+
+      <button
+        class="modal-close"
+        data-close-word
+      >
+        ×
+      </button>
+
+    </div>
+
+    <form id="wordForm" class="form">
+
+      <input
+        type="hidden"
+        id="wordId"
+      >
+
+      <div class="form-row">
+
+        <div class="field">
+          <label>Palabra en español</label>
+
+          <input
+            id="wordSpanish"
+            required
+            maxlength="120"
+          >
+        </div>
+
+        <div class="field">
+
+          <label>Categoría</label>
+
+          <input
+            id="wordCategory"
+            required
+            maxlength="80"
+            placeholder="Naturaleza, Animales…"
+          >
+
+        </div>
+
+      </div>
+
+      <div class="field">
+
+        <label>Lengua materna</label>
+
+        <select
+          id="wordLanguage"
+          required
+        ></select>
+
+      </div>
+
+      <div class="field">
+
+        <label>Traducción principal</label>
+
+        <input
+          id="wordTranslation"
+          required
+          maxlength="150"
+        >
+
+      </div>
+
+      <div class="field">
+
+        <label>Significado</label>
+
+        <textarea
+          id="wordMeaning"
+          required
+          maxlength="500"
+        ></textarea>
+
+      </div>
+
+      <div class="field">
+
+        <label>Ejemplo de uso</label>
+
+        <textarea
+          id="wordExample"
+          maxlength="255"
+        ></textarea>
+
+      </div>
+
+      <div class="field">
+
+        <label>Audio de pronunciación</label>
+
+        <input
+          type="file"
+          id="audioFile"
+          accept="audio/*"
+        >
+
+        <small class="muted">
+          Opcional. Formatos: MP3, WAV, OGG o M4A.
+        </small>
+
+        <input
+          id="audioUrl"
+          placeholder="o pega una URL / ruta de audio"
+        >
+
+      </div>
+
+      <div
+        id="wordMessage"
+        class="form-message hidden"
+      ></div>
+
+      <div class="actions">
+
+        <button
+          type="button"
+          class="btn btn-secondary"
+          data-close-word
+        >
+          Cancelar
+        </button>
+
+        <button class="btn btn-primary">
+          Guardar palabra
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
+
+
+<!-- MODAL IDIOMAS - ALEXIS -->
+<div id="languageModal" class="modal hidden">
+
+  <div class="modal-card">
+
+    <div class="modal-head">
+
+      <h3 id="languageModalTitle">
+        Agregar idioma
+      </h3>
+
+      <button
+        type="button"
+        class="modal-close"
+        data-close-language
+      >
+        ×
+      </button>
+
+    </div>
+
+    <form id="languageForm" class="form">
+
+      <input
+        type="hidden"
+        id="languageId"
+      >
+
+      <div class="field">
+
+        <label>
+          Nombre del idioma
+        </label>
+
+        <input
+          id="languageName"
+          required
+          maxlength="100"
+          placeholder="Ejemplo: Quechua"
+        >
+
+      </div>
+
+      <div class="field">
+
+        <label>
+          ID de la región
+        </label>
+
+        <input
+          id="languageRegionId"
+          type="number"
+          min="1"
+          required
+          placeholder="Ejemplo: 1"
+        >
+
+      </div>
+
+      <div class="field">
+
+        <label>
+          Familia lingüística
+        </label>
+
+        <input
+          id="languageFamily"
+          maxlength="100"
+          placeholder="Ejemplo: Quechua"
+        >
+
+      </div>
+
+      <div
+        id="languageMessage"
+        class="form-message hidden"
+      ></div>
+
+      <div class="actions">
+
+        <button
+          type="button"
+          class="btn btn-secondary"
+          data-close-language
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="submit"
+          class="btn btn-primary"
+        >
+          Guardar idioma
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
+
+
+<script src="/js/api.js"></script>
+<script src="/js/admin.js"></script>
+<script src="/js/languages-admin.js"></script>
+
+</body>
+
+</html>
