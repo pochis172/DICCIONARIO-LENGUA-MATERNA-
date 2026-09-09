@@ -49,14 +49,162 @@ public class DataInitializer implements CommandLineRunner {
             usuarioRepository.save(u);
         }
 
-        Region andina = regionRepository.findByNombreIgnoreCase("Región Andina")
-                .orElseGet(() -> regionRepository.save(new Region("Región Andina")));
-        Lengua quechua = lenguaRepository.findByNombreIgnoreCase("Quechua").orElseGet(() -> {
-            Lengua l = new Lengua();
-            l.setNombre("Quechua");
-            l.setRegion(andina);
-            l.setFamiliaLinguistica("Quechua");
-            return lenguaRepository.save(l);
+// =====================================================
+// REGIONES
+// =====================================================
+
+Region andina = regionRepository
+        .findByNombreIgnoreCase("Región Andina")
+        .orElseGet(() ->
+                regionRepository.save(new Region("Región Andina"))
+        );
+
+Region amazonica = regionRepository
+        .findByNombreIgnoreCase("Región Amazónica")
+        .orElseGet(() ->
+                regionRepository.save(new Region("Región Amazónica"))
+        );
+
+Region pacifica = regionRepository
+        .findByNombreIgnoreCase("Región Pacífica")
+        .orElseGet(() ->
+                regionRepository.save(new Region("Región Pacífica"))
+        );
+
+Region caribe = regionRepository
+        .findByNombreIgnoreCase("Región Caribe")
+        .orElseGet(() ->
+                regionRepository.save(new Region("Región Caribe"))
+        );
+
+Region surAndina = regionRepository
+        .findByNombreIgnoreCase("Región Sur Andina")
+        .orElseGet(() ->
+                regionRepository.save(new Region("Región Sur Andina"))
+        );
+
+
+// =====================================================
+// LENGUAS
+// =====================================================
+
+// Quechua
+Lengua quechua = lenguaRepository
+        .findByNombreIgnoreCase("Quechua")
+        .orElseGet(() -> {
+
+            Lengua lengua = new Lengua();
+
+            lengua.setNombre("Quechua");
+            lengua.setRegion(andina);
+            lengua.setFamiliaLinguistica("Quechua");
+
+            return lenguaRepository.save(lengua);
+        });
+
+
+// Inga
+lenguaRepository
+        .findByNombreIgnoreCase("Inga")
+        .orElseGet(() -> {
+
+            Lengua lengua = new Lengua();
+
+            lengua.setNombre("Inga");
+            lengua.setRegion(amazonica);
+            lengua.setFamiliaLinguistica("Quechua");
+
+            return lenguaRepository.save(lengua);
+        });
+
+
+// Kamëntsá
+lenguaRepository
+        .findByNombreIgnoreCase("Kamëntsá")
+        .orElseGet(() -> {
+
+            Lengua lengua = new Lengua();
+
+            lengua.setNombre("Kamëntsá");
+            lengua.setRegion(amazonica);
+            lengua.setFamiliaLinguistica("Kamëntsá");
+
+            return lenguaRepository.save(lengua);
+        });
+
+
+// Siona
+lenguaRepository
+        .findByNombreIgnoreCase("Siona")
+        .orElseGet(() -> {
+
+            Lengua lengua = new Lengua();
+
+            lengua.setNombre("Siona");
+            lengua.setRegion(amazonica);
+            lengua.setFamiliaLinguistica("Tucano Occidental");
+
+            return lenguaRepository.save(lengua);
+        });
+
+
+// A'ingae
+lenguaRepository
+        .findByNombreIgnoreCase("A'ingae")
+        .orElseGet(() -> {
+
+            Lengua lengua = new Lengua();
+
+            lengua.setNombre("A'ingae");
+            lengua.setRegion(amazonica);
+            lengua.setFamiliaLinguistica("Aislada");
+
+            return lenguaRepository.save(lengua);
+        });
+
+
+// Emberá
+lenguaRepository
+        .findByNombreIgnoreCase("Emberá")
+        .orElseGet(() -> {
+
+            Lengua lengua = new Lengua();
+
+            lengua.setNombre("Emberá");
+            lengua.setRegion(pacifica);
+            lengua.setFamiliaLinguistica("Chocó");
+
+            return lenguaRepository.save(lengua);
+        });
+
+
+// Wayuunaiki
+lenguaRepository
+        .findByNombreIgnoreCase("Wayuunaiki")
+        .orElseGet(() -> {
+
+            Lengua lengua = new Lengua();
+
+            lengua.setNombre("Wayuunaiki");
+            lengua.setRegion(caribe);
+            lengua.setFamiliaLinguistica("Arawak");
+
+            return lenguaRepository.save(lengua);
+        });
+
+
+// Nasa Yuwe
+lenguaRepository
+        .findByNombreIgnoreCase("Nasa Yuwe")
+        .orElseGet(() -> {
+
+            Lengua lengua = new Lengua();
+
+            lengua.setNombre("Nasa Yuwe");
+            lengua.setRegion(surAndina);
+            lengua.setFamiliaLinguistica("Nasa Yuwe");
+
+            return lenguaRepository.save(lengua);
         });
 
         if (palabraRepository.count() == 0) {

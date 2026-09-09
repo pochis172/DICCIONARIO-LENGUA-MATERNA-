@@ -2,10 +2,15 @@ package com.diccionario.lenguamaterna.service;
 
 import com.diccionario.lenguamaterna.dto.LenguaDtos.LenguaRequest;
 import com.diccionario.lenguamaterna.dto.LenguaDtos.LenguaResponse;
+import com.diccionario.lenguamaterna.dto.LenguaDtos.LenguaPatchRequest;
+import com.diccionario.lenguamaterna.dto.LenguaDtos.LenguaResumenResponse;
+
 import com.diccionario.lenguamaterna.entity.Lengua;
 import com.diccionario.lenguamaterna.entity.Region;
+
 import com.diccionario.lenguamaterna.repository.LenguaRepository;
 import com.diccionario.lenguamaterna.repository.RegionRepository;
+import com.diccionario.lenguamaterna.repository.TraduccionRepository;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -20,15 +25,22 @@ public class LenguaService {
 
     private final LenguaRepository lenguaRepository;
     private final RegionRepository regionRepository;
+    private final TraduccionRepository traduccionRepository;
 
     public LenguaService(
             LenguaRepository lenguaRepository,
-            RegionRepository regionRepository
+            RegionRepository regionRepository,
+            TraduccionRepository traduccionRepository
     ) {
         this.lenguaRepository = lenguaRepository;
         this.regionRepository = regionRepository;
+        this.traduccionRepository = traduccionRepository;
     }
 
+
+    // =========================
+    // LISTAR TODAS LAS LENGUAS
+    // =========================
     @Transactional(readOnly = true)
     public List<LenguaResponse> listar() {
 
@@ -38,6 +50,10 @@ public class LenguaService {
                 .toList();
     }
 
+
+    // =========================
+    // BUSCAR LENGUA POR ID
+    // =========================
     @Transactional(readOnly = true)
     public LenguaResponse buscarPorId(Long id) {
 
@@ -50,6 +66,136 @@ public class LenguaService {
         return toResponse(lengua);
     }
 
+
+    // =========================
+    // RESUMEN DE UNA LENGUA
+    // =========================
+    @Transactional(readOnly = true)
+    public LenguaResumenResponse obtenerResumen(Long id) {
+
+        Lengua lengua = lenguaRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Lengua no encontrada."
+                ));
+
+        long cantidadTraducciones =
+                traduccionRepository.countByLenguaId(id);
+
+        return new LenguaResumenResponse(
+                lengua.getId(),
+                lengua.getNombre(),
+                lengua.getRegion().getNombre(),
+                lengua.getFamiliaLinguistica(),
+                cantidadTraducciones
+        );
+    }
+
+
+    // =========================
+    // BUSCAR POR NOMBRE
+    // =========================
+    @Transactional(readOnly = true)
+    public List<LenguaResponse> buscarPorNombre(String nombre) {
+
+        if (nombre == null || nombre.isBlank()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Debe ingresar un nombre para realizar la búsqueda."
+            );
+        }
+
+        String textoBusqueda = nombre.trim();
+
+        return lenguaRepository
+                .findByNombreContainingIgnoreCaseOrderByNombreAsc(textoBusqueda)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+
+    // =========================
+    // BUSCAR POR ID DE REGIÓN
+    // =========================
+    @Transactional(readOnly = true)
+    public List<LenguaResponse> buscarPorRegion(Long regionId) {
+
+        if (regionId == null || regionId <= 0) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "El identificador de la región no es válido."
+            );
+        }
+
+        if (!regionRepository.existsById(regionId)) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Región no encontrada."
+            );
+        }
+
+        return lenguaRepository
+                .findByRegionIdOrderByNombreAsc(regionId)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+
+    // ==========================================
+    // BUSCAR POR NOMBRE DE LA REGIÓN
+    // ==========================================
+    @Transactional(readOnly = true)
+    public List<LenguaResponse> buscarPorNombreRegion(String nombreRegion) {
+
+        if (nombreRegion == null || nombreRegion.isBlank()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Debe ingresar el nombre de una región."
+            );
+        }
+
+        String textoBusqueda = nombreRegion.trim();
+
+        return lenguaRepository
+                .findByRegionNombreContainingIgnoreCaseOrderByNombreAsc(
+                        textoBusqueda
+                )
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+
+    // =========================
+    // BUSCAR POR FAMILIA
+    // =========================
+    @Transactional(readOnly = true)
+    public List<LenguaResponse> buscarPorFamilia(String familia) {
+
+        if (familia == null || familia.isBlank()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Debe ingresar una familia lingüística."
+            );
+        }
+
+        String textoBusqueda = familia.trim();
+
+        return lenguaRepository
+                .findByFamiliaLinguisticaContainingIgnoreCaseOrderByNombreAsc(
+                        textoBusqueda
+                )
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+
+    // =========================
+    // CREAR LENGUA
+    // =========================
     @Transactional
     public LenguaResponse crear(LenguaRequest request) {
 
@@ -81,6 +227,10 @@ public class LenguaService {
         return toResponse(guardada);
     }
 
+
+    // =========================
+    // ACTUALIZAR LENGUA COMPLETA
+    // =========================
     @Transactional
     public LenguaResponse actualizar(
             Long id,
@@ -123,6 +273,150 @@ public class LenguaService {
         return toResponse(actualizada);
     }
 
+
+    // ===============================================
+    // ACTUALIZACIÓN PARCIAL - PATCH
+    // ===============================================
+    @Transactional
+    public LenguaResponse actualizarParcial(
+            Long id,
+            LenguaPatchRequest request
+    ) {
+
+        Lengua lengua = lenguaRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Lengua no encontrada."
+                ));
+
+        boolean huboCambios = false;
+
+
+        // ===========================================
+        // ACTUALIZAR NOMBRE
+        // ===========================================
+        if (request.nombre() != null) {
+
+            String nombre = request.nombre().trim();
+
+            if (nombre.isBlank()) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "El nombre de la lengua no puede estar vacío."
+                );
+            }
+
+            lenguaRepository.findByNombreIgnoreCase(nombre)
+                    .filter(otraLengua ->
+                            !otraLengua.getId().equals(id)
+                    )
+                    .ifPresent(otraLengua -> {
+                        throw new ResponseStatusException(
+                                HttpStatus.CONFLICT,
+                                "Ya existe otra lengua registrada con ese nombre."
+                        );
+                    });
+
+            lengua.setNombre(nombre);
+            huboCambios = true;
+        }
+
+
+        // ===========================================
+        // VALIDAR FORMA DE ACTUALIZAR REGIÓN
+        // ===========================================
+        if (request.regionId() != null && request.regionNombre() != null) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Debe enviar regionId o regionNombre, pero no ambos."
+            );
+        }
+
+
+        // ===========================================
+        // ACTUALIZAR REGIÓN POR ID
+        // ===========================================
+        if (request.regionId() != null) {
+
+            if (request.regionId() <= 0) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "El identificador de la región no es válido."
+                );
+            }
+
+            Region region = regionRepository.findById(request.regionId())
+                    .orElseThrow(() -> new ResponseStatusException(
+                            HttpStatus.NOT_FOUND,
+                            "Región no encontrada."
+                    ));
+
+            lengua.setRegion(region);
+            huboCambios = true;
+        }
+
+
+        // ===========================================
+        // ACTUALIZAR REGIÓN POR NOMBRE
+        // ===========================================
+        if (request.regionNombre() != null) {
+
+            String nombreRegion = request.regionNombre().trim();
+
+            if (nombreRegion.isBlank()) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "El nombre de la región no puede estar vacío."
+                );
+            }
+
+            Region region = regionRepository
+                    .findByNombreIgnoreCase(nombreRegion)
+                    .orElseThrow(() -> new ResponseStatusException(
+                            HttpStatus.NOT_FOUND,
+                            "No existe una región registrada con ese nombre."
+                    ));
+
+            lengua.setRegion(region);
+            huboCambios = true;
+        }
+
+
+        // ===========================================
+        // ACTUALIZAR FAMILIA LINGÜÍSTICA
+        // ===========================================
+        if (request.familiaLinguistica() != null) {
+
+            lengua.setFamiliaLinguistica(
+                    normalizarFamilia(request.familiaLinguistica())
+            );
+
+            huboCambios = true;
+        }
+
+
+        // ===========================================
+        // EVITAR PATCH VACÍO
+        // ===========================================
+        if (!huboCambios) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Debe enviar al menos un campo para actualizar."
+            );
+        }
+
+
+        Lengua actualizada = lenguaRepository.save(lengua);
+
+        return toResponse(actualizada);
+    }
+
+
+    // =========================
+    // ELIMINAR LENGUA
+    // =========================
     @Transactional
     public void eliminar(Long id) {
 
@@ -146,6 +440,10 @@ public class LenguaService {
         }
     }
 
+
+    // =========================
+    // CONVERTIR ENTITY A DTO
+    // =========================
     private LenguaResponse toResponse(Lengua lengua) {
 
         Region region = lengua.getRegion();
@@ -159,6 +457,10 @@ public class LenguaService {
         );
     }
 
+
+    // =========================
+    // NORMALIZAR FAMILIA
+    // =========================
     private String normalizarFamilia(String familia) {
 
         if (familia == null || familia.isBlank()) {
