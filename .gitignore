@@ -34,3 +34,6 @@ build/
 
 ### Archivos cargados en ejecución ###
 /uploads/
+
+# Datos locales de H2
+/data/
