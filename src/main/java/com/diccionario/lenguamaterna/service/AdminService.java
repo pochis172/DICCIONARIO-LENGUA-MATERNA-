@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+
 import java.util.List;
 import java.util.Locale;
 
@@ -140,6 +141,104 @@ public class AdminService {
 
         return dictionaryService.toResponse(actualizada, null);
     }
+
+    /*
+ * ACTUALIZAR DATOS DE UNA PALABRA
+ *
+ * Modifica solamente los campos enviados.
+ * Conserva la lengua, las traducciones, los ejemplos y los audios.
+ */
+@Transactional
+public PalabraResponse actualizarDatos(
+        Long id,
+        ActualizarPalabraRequest request
+) {
+
+    // Exigir al menos un campo con valor.
+    if (request == null ||
+            (request.espanol() == null &&
+             request.categoria() == null &&
+             request.significado() == null)) {
+
+        throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Envía al menos uno de estos campos: espanol, categoria o significado."
+        );
+    }
+
+    // Buscar la palabra que vamos a modificar.
+    Palabra palabra = palabraRepository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Palabra no encontrada."
+            ));
+
+    // Validar todos los textos antes de modificar la palabra.
+    String espanol = normalizarDatoParcial(
+            request.espanol(),
+            "espanol"
+    );
+
+    String categoria = normalizarDatoParcial(
+            request.categoria(),
+            "categoria"
+    );
+
+    String significado = normalizarDatoParcial(
+            request.significado(),
+            "significado"
+    );
+
+    // Cambiar únicamente los campos que tienen un valor.
+    if (espanol != null) {
+
+        validarDuplicado(
+                espanol,
+                palabra.getLengua().getId(),
+                id
+        );
+
+        palabra.setEspanol(espanol);
+    }
+
+    if (categoria != null) {
+        palabra.setCategoria(categoria);
+    }
+
+    if (significado != null) {
+        palabra.setSignificado(significado);
+    }
+
+    Palabra actualizada = palabraRepository.save(palabra);
+
+    return dictionaryService.toResponse(actualizada, null);
+}
+
+/*
+ * VALIDAR Y LIMPIAR UN CAMPO OPCIONAL
+ */
+private String normalizarDatoParcial(
+        String valor,
+        String campo
+) {
+
+    // null significa que este campo no se modifica.
+    if (valor == null) {
+        return null;
+    }
+
+    // Rechazar textos vacíos o compuestos solamente por espacios.
+    if (valor.isBlank()) {
+
+        throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "El campo " + campo + " no puede estar vacío."
+        );
+    }
+
+    // Quitar espacios al inicio y al final.
+    return valor.trim();
+}
 
     /*
      * ELIMINAR PALABRA

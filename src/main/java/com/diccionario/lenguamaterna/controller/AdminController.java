@@ -14,6 +14,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+import com.diccionario.lenguamaterna.dto.DictionaryDtos.ActualizarPalabraRequest;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -227,4 +228,26 @@ public class AdminController {
                 "/uploads/audio/" + nombre
         );
     }
+
+    /*
+ * PATCH /api/admin/palabras/{id}
+ *
+ * Actualiza los datos enviados y conserva las relaciones.
+ */
+@PatchMapping("/palabras/{id}")
+public ResponseEntity<PalabraResponse> actualizarDatosPalabra(
+        @PathVariable Long id,
+        @Valid @RequestBody ActualizarPalabraRequest request,
+        HttpSession session
+) {
+
+    SessionUtil.requireAdmin(session);
+
+    PalabraResponse actualizada = adminService.actualizarDatos(
+            id,
+            request
+    );
+
+    return ResponseEntity.ok(actualizada);
+}
 }
