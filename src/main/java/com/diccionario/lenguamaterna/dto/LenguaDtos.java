@@ -22,6 +22,24 @@ public final class LenguaDtos {
 
     ) {}
 
+public record LenguaPatchRequest(
+
+        @Size(max = 100, message = "El nombre no puede superar 100 caracteres")
+        String nombre,
+
+        Long regionId,
+
+        @Size(max = 100, message = "El nombre de la región no puede superar 100 caracteres")
+        String regionNombre,
+
+        @Size(max = 100, message = "La familia lingüística no puede superar 100 caracteres")
+        String familiaLinguistica
+
+) {}
+
+
+
+
     public record LenguaResponse(
             Long id,
             String nombre,

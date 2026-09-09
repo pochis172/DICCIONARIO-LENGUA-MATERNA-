@@ -3,6 +3,7 @@ package com.diccionario.lenguamaterna.controller;
 import com.diccionario.lenguamaterna.config.SessionUtil;
 import com.diccionario.lenguamaterna.dto.LenguaDtos.LenguaRequest;
 import com.diccionario.lenguamaterna.dto.LenguaDtos.LenguaResponse;
+import com.diccionario.lenguamaterna.dto.LenguaDtos.LenguaPatchRequest;
 import com.diccionario.lenguamaterna.service.LenguaService;
 
 import jakarta.servlet.http.HttpSession;
@@ -121,6 +122,22 @@ public class LenguaController {
 
         return lenguaService.actualizar(id, request);
     }
+
+    @PatchMapping("/{id}")
+    public LenguaResponse actualizarParcial(
+            @PathVariable Long id,
+            @Valid @RequestBody LenguaPatchRequest request,
+            HttpSession session
+    ) {
+
+        SessionUtil.requireAdmin(session);
+
+        return lenguaService.actualizarParcial(id, request);
+    }
+
+
+
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(
