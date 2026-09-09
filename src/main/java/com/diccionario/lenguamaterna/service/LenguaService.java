@@ -3,12 +3,14 @@ package com.diccionario.lenguamaterna.service;
 import com.diccionario.lenguamaterna.dto.LenguaDtos.LenguaRequest;
 import com.diccionario.lenguamaterna.dto.LenguaDtos.LenguaResponse;
 import com.diccionario.lenguamaterna.dto.LenguaDtos.LenguaPatchRequest;
+import com.diccionario.lenguamaterna.dto.LenguaDtos.LenguaResumenResponse;
 
 import com.diccionario.lenguamaterna.entity.Lengua;
 import com.diccionario.lenguamaterna.entity.Region;
 
 import com.diccionario.lenguamaterna.repository.LenguaRepository;
 import com.diccionario.lenguamaterna.repository.RegionRepository;
+import com.diccionario.lenguamaterna.repository.TraduccionRepository;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -23,14 +25,18 @@ public class LenguaService {
 
     private final LenguaRepository lenguaRepository;
     private final RegionRepository regionRepository;
+    private final TraduccionRepository traduccionRepository;
 
     public LenguaService(
             LenguaRepository lenguaRepository,
-            RegionRepository regionRepository
+            RegionRepository regionRepository,
+            TraduccionRepository traduccionRepository
     ) {
         this.lenguaRepository = lenguaRepository;
         this.regionRepository = regionRepository;
+        this.traduccionRepository = traduccionRepository;
     }
+
 
     // =========================
     // LISTAR TODAS LAS LENGUAS
@@ -43,6 +49,7 @@ public class LenguaService {
                 .map(this::toResponse)
                 .toList();
     }
+
 
     // =========================
     // BUSCAR LENGUA POR ID
@@ -58,6 +65,32 @@ public class LenguaService {
 
         return toResponse(lengua);
     }
+
+
+    // =========================
+    // RESUMEN DE UNA LENGUA
+    // =========================
+    @Transactional(readOnly = true)
+    public LenguaResumenResponse obtenerResumen(Long id) {
+
+        Lengua lengua = lenguaRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Lengua no encontrada."
+                ));
+
+        long cantidadTraducciones =
+                traduccionRepository.countByLenguaId(id);
+
+        return new LenguaResumenResponse(
+                lengua.getId(),
+                lengua.getNombre(),
+                lengua.getRegion().getNombre(),
+                lengua.getFamiliaLinguistica(),
+                cantidadTraducciones
+        );
+    }
+
 
     // =========================
     // BUSCAR POR NOMBRE
@@ -80,6 +113,7 @@ public class LenguaService {
                 .map(this::toResponse)
                 .toList();
     }
+
 
     // =========================
     // BUSCAR POR ID DE REGIÓN
@@ -108,6 +142,7 @@ public class LenguaService {
                 .toList();
     }
 
+
     // ==========================================
     // BUSCAR POR NOMBRE DE LA REGIÓN
     // ==========================================
@@ -132,6 +167,7 @@ public class LenguaService {
                 .toList();
     }
 
+
     // =========================
     // BUSCAR POR FAMILIA
     // =========================
@@ -155,6 +191,7 @@ public class LenguaService {
                 .map(this::toResponse)
                 .toList();
     }
+
 
     // =========================
     // CREAR LENGUA
@@ -189,6 +226,7 @@ public class LenguaService {
 
         return toResponse(guardada);
     }
+
 
     // =========================
     // ACTUALIZAR LENGUA COMPLETA
@@ -235,6 +273,7 @@ public class LenguaService {
         return toResponse(actualizada);
     }
 
+
     // ===============================================
     // ACTUALIZACIÓN PARCIAL - PATCH
     // ===============================================
@@ -251,6 +290,7 @@ public class LenguaService {
                 ));
 
         boolean huboCambios = false;
+
 
         // ===========================================
         // ACTUALIZAR NOMBRE
@@ -281,15 +321,18 @@ public class LenguaService {
             huboCambios = true;
         }
 
+
         // ===========================================
-        // VALIDAR FORMA DE ACTUALIZAR LA REGIÓN
+        // VALIDAR FORMA DE ACTUALIZAR REGIÓN
         // ===========================================
         if (request.regionId() != null && request.regionNombre() != null) {
+
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "Debe enviar regionId o regionNombre, pero no ambos."
             );
         }
+
 
         // ===========================================
         // ACTUALIZAR REGIÓN POR ID
@@ -313,8 +356,9 @@ public class LenguaService {
             huboCambios = true;
         }
 
+
         // ===========================================
-        // NUEVO: ACTUALIZAR REGIÓN POR NOMBRE
+        // ACTUALIZAR REGIÓN POR NOMBRE
         // ===========================================
         if (request.regionNombre() != null) {
 
@@ -338,6 +382,7 @@ public class LenguaService {
             huboCambios = true;
         }
 
+
         // ===========================================
         // ACTUALIZAR FAMILIA LINGÜÍSTICA
         // ===========================================
@@ -350,20 +395,24 @@ public class LenguaService {
             huboCambios = true;
         }
 
+
         // ===========================================
         // EVITAR PATCH VACÍO
         // ===========================================
         if (!huboCambios) {
+
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "Debe enviar al menos un campo para actualizar."
             );
         }
 
+
         Lengua actualizada = lenguaRepository.save(lengua);
 
         return toResponse(actualizada);
     }
+
 
     // =========================
     // ELIMINAR LENGUA
@@ -391,6 +440,7 @@ public class LenguaService {
         }
     }
 
+
     // =========================
     // CONVERTIR ENTITY A DTO
     // =========================
@@ -406,6 +456,7 @@ public class LenguaService {
                 lengua.getFamiliaLinguistica()
         );
     }
+
 
     // =========================
     // NORMALIZAR FAMILIA

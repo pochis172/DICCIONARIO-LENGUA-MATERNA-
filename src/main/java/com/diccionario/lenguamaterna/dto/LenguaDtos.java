@@ -8,6 +8,9 @@ public final class LenguaDtos {
 
     private LenguaDtos() {}
 
+    // =========================
+    // DTO PARA CREAR Y ACTUALIZAR
+    // =========================
     public record LenguaRequest(
 
             @NotBlank(message = "El nombre de la lengua es obligatorio")
@@ -22,29 +25,46 @@ public final class LenguaDtos {
 
     ) {}
 
-public record LenguaPatchRequest(
 
-        @Size(max = 100, message = "El nombre no puede superar 100 caracteres")
-        String nombre,
+    // =========================
+    // DTO PARA PATCH
+    // =========================
+    public record LenguaPatchRequest(
 
-        Long regionId,
+            @Size(max = 100, message = "El nombre no puede superar 100 caracteres")
+            String nombre,
 
-        @Size(max = 100, message = "El nombre de la región no puede superar 100 caracteres")
-        String regionNombre,
+            Long regionId,
 
-        @Size(max = 100, message = "La familia lingüística no puede superar 100 caracteres")
-        String familiaLinguistica
+            @Size(max = 100, message = "El nombre de la región no puede superar 100 caracteres")
+            String regionNombre,
 
-) {}
+            @Size(max = 100, message = "La familia lingüística no puede superar 100 caracteres")
+            String familiaLinguistica
+
+    ) {}
 
 
-
-
+    // =========================
+    // RESPUESTA NORMAL
+    // =========================
     public record LenguaResponse(
             Long id,
             String nombre,
             Long regionId,
             String region,
             String familiaLinguistica
+    ) {}
+
+
+    // =========================
+    // RESPUESTA DEL RESUMEN
+    // =========================
+    public record LenguaResumenResponse(
+            Long id,
+            String nombre,
+            String region,
+            String familiaLinguistica,
+            long cantidadTraducciones
     ) {}
 }

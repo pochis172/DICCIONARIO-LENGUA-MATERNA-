@@ -4,6 +4,7 @@ import com.diccionario.lenguamaterna.config.SessionUtil;
 import com.diccionario.lenguamaterna.dto.LenguaDtos.LenguaRequest;
 import com.diccionario.lenguamaterna.dto.LenguaDtos.LenguaResponse;
 import com.diccionario.lenguamaterna.dto.LenguaDtos.LenguaPatchRequest;
+import com.diccionario.lenguamaterna.dto.LenguaDtos.LenguaResumenResponse;
 import com.diccionario.lenguamaterna.service.LenguaService;
 
 import jakarta.servlet.http.HttpSession;
@@ -25,6 +26,9 @@ public class LenguaController {
         this.lenguaService = lenguaService;
     }
 
+    // =========================
+    // LISTAR TODAS LAS LENGUAS
+    // =========================
     @GetMapping
     public List<LenguaResponse> listar(HttpSession session) {
 
@@ -33,6 +37,9 @@ public class LenguaController {
         return lenguaService.listar();
     }
 
+    // =========================
+    // BUSCAR POR NOMBRE
+    // =========================
     @GetMapping("/buscar")
     public List<LenguaResponse> buscarPorNombre(
             @RequestParam String nombre,
@@ -44,19 +51,23 @@ public class LenguaController {
         return lenguaService.buscarPorNombre(nombre);
     }
 
+    // =========================
+    // BUSCAR POR ID DE REGIÓN
+    // =========================
     @GetMapping("/region/{regionId}")
     public List<LenguaResponse> buscarPorRegion(
             @PathVariable Long regionId,
             HttpSession session
     ) {
 
-
-
         SessionUtil.requireAdmin(session);
 
         return lenguaService.buscarPorRegion(regionId);
     }
 
+    // =========================
+    // BUSCAR POR NOMBRE REGIÓN
+    // =========================
     @GetMapping("/region")
     public List<LenguaResponse> buscarPorNombreRegion(
             @RequestParam String nombre,
@@ -68,10 +79,9 @@ public class LenguaController {
         return lenguaService.buscarPorNombreRegion(nombre);
     }
 
-
-
-
-    
+    // =========================
+    // BUSCAR POR FAMILIA
+    // =========================
     @GetMapping("/familia")
     public List<LenguaResponse> buscarPorFamilia(
             @RequestParam String nombre,
@@ -83,8 +93,23 @@ public class LenguaController {
         return lenguaService.buscarPorFamilia(nombre);
     }
 
+    // =========================
+    // RESUMEN DE UNA LENGUA
+    // =========================
+    @GetMapping("/{id}/resumen")
+    public LenguaResumenResponse obtenerResumen(
+            @PathVariable Long id,
+            HttpSession session
+    ) {
 
+        SessionUtil.requireAdmin(session);
 
+        return lenguaService.obtenerResumen(id);
+    }
+
+    // =========================
+    // BUSCAR LENGUA POR ID
+    // =========================
     @GetMapping("/{id}")
     public LenguaResponse buscarPorId(
             @PathVariable Long id,
@@ -96,6 +121,9 @@ public class LenguaController {
         return lenguaService.buscarPorId(id);
     }
 
+    // =========================
+    // CREAR LENGUA
+    // =========================
     @PostMapping
     public ResponseEntity<LenguaResponse> crear(
             @Valid @RequestBody LenguaRequest request,
@@ -111,6 +139,9 @@ public class LenguaController {
                 .body(creada);
     }
 
+    // =========================
+    // ACTUALIZAR COMPLETAMENTE
+    // =========================
     @PutMapping("/{id}")
     public LenguaResponse actualizar(
             @PathVariable Long id,
@@ -123,6 +154,9 @@ public class LenguaController {
         return lenguaService.actualizar(id, request);
     }
 
+    // =========================
+    // ACTUALIZAR PARCIALMENTE
+    // =========================
     @PatchMapping("/{id}")
     public LenguaResponse actualizarParcial(
             @PathVariable Long id,
@@ -135,10 +169,9 @@ public class LenguaController {
         return lenguaService.actualizarParcial(id, request);
     }
 
-
-
-
-
+    // =========================
+    // ELIMINAR LENGUA
+    // =========================
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(
             @PathVariable Long id,
@@ -152,4 +185,3 @@ public class LenguaController {
         return ResponseEntity.noContent().build();
     }
 }
-
