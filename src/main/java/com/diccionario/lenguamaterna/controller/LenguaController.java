@@ -32,6 +32,58 @@ public class LenguaController {
         return lenguaService.listar();
     }
 
+    @GetMapping("/buscar")
+    public List<LenguaResponse> buscarPorNombre(
+            @RequestParam String nombre,
+            HttpSession session
+    ) {
+
+        SessionUtil.requireAdmin(session);
+
+        return lenguaService.buscarPorNombre(nombre);
+    }
+
+    @GetMapping("/region/{regionId}")
+    public List<LenguaResponse> buscarPorRegion(
+            @PathVariable Long regionId,
+            HttpSession session
+    ) {
+
+
+
+        SessionUtil.requireAdmin(session);
+
+        return lenguaService.buscarPorRegion(regionId);
+    }
+
+    @GetMapping("/region")
+    public List<LenguaResponse> buscarPorNombreRegion(
+            @RequestParam String nombre,
+            HttpSession session
+    ) {
+
+        SessionUtil.requireAdmin(session);
+
+        return lenguaService.buscarPorNombreRegion(nombre);
+    }
+
+
+
+
+    
+    @GetMapping("/familia")
+    public List<LenguaResponse> buscarPorFamilia(
+            @RequestParam String nombre,
+            HttpSession session
+    ) {
+
+        SessionUtil.requireAdmin(session);
+
+        return lenguaService.buscarPorFamilia(nombre);
+    }
+
+
+
     @GetMapping("/{id}")
     public LenguaResponse buscarPorId(
             @PathVariable Long id,
@@ -83,3 +135,4 @@ public class LenguaController {
         return ResponseEntity.noContent().build();
     }
 }
+

@@ -29,6 +29,9 @@ public class LenguaService {
         this.regionRepository = regionRepository;
     }
 
+    // =========================
+    // LISTAR TODAS LAS LENGUAS
+    // =========================
     @Transactional(readOnly = true)
     public List<LenguaResponse> listar() {
 
@@ -38,6 +41,9 @@ public class LenguaService {
                 .toList();
     }
 
+    // =========================
+    // BUSCAR LENGUA POR ID
+    // =========================
     @Transactional(readOnly = true)
     public LenguaResponse buscarPorId(Long id) {
 
@@ -50,6 +56,106 @@ public class LenguaService {
         return toResponse(lengua);
     }
 
+    // =========================
+    // BUSCAR POR NOMBRE
+    // =========================
+    @Transactional(readOnly = true)
+    public List<LenguaResponse> buscarPorNombre(String nombre) {
+
+        if (nombre == null || nombre.isBlank()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Debe ingresar un nombre para realizar la búsqueda."
+            );
+        }
+
+        String textoBusqueda = nombre.trim();
+
+        return lenguaRepository
+                .findByNombreContainingIgnoreCaseOrderByNombreAsc(textoBusqueda)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    // =========================
+    // BUSCAR POR ID DE REGIÓN
+    // =========================
+    @Transactional(readOnly = true)
+    public List<LenguaResponse> buscarPorRegion(Long regionId) {
+
+        if (regionId == null || regionId <= 0) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "El identificador de la región no es válido."
+            );
+        }
+
+        if (!regionRepository.existsById(regionId)) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Región no encontrada."
+            );
+        }
+
+        return lenguaRepository
+                .findByRegionIdOrderByNombreAsc(regionId)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    // ==========================================
+    // NUEVO: BUSCAR POR NOMBRE DE LA REGIÓN
+    // ==========================================
+    @Transactional(readOnly = true)
+    public List<LenguaResponse> buscarPorNombreRegion(String nombreRegion) {
+
+        if (nombreRegion == null || nombreRegion.isBlank()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Debe ingresar el nombre de una región."
+            );
+        }
+
+        String textoBusqueda = nombreRegion.trim();
+
+        return lenguaRepository
+                .findByRegionNombreContainingIgnoreCaseOrderByNombreAsc(
+                        textoBusqueda
+                )
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    // =========================
+    // BUSCAR POR FAMILIA
+    // =========================
+    @Transactional(readOnly = true)
+    public List<LenguaResponse> buscarPorFamilia(String familia) {
+
+        if (familia == null || familia.isBlank()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Debe ingresar una familia lingüística."
+            );
+        }
+
+        String textoBusqueda = familia.trim();
+
+        return lenguaRepository
+                .findByFamiliaLinguisticaContainingIgnoreCaseOrderByNombreAsc(
+                        textoBusqueda
+                )
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    // =========================
+    // CREAR LENGUA
+    // =========================
     @Transactional
     public LenguaResponse crear(LenguaRequest request) {
 
@@ -81,6 +187,9 @@ public class LenguaService {
         return toResponse(guardada);
     }
 
+    // =========================
+    // ACTUALIZAR LENGUA
+    // =========================
     @Transactional
     public LenguaResponse actualizar(
             Long id,
@@ -123,6 +232,9 @@ public class LenguaService {
         return toResponse(actualizada);
     }
 
+    // =========================
+    // ELIMINAR LENGUA
+    // =========================
     @Transactional
     public void eliminar(Long id) {
 
@@ -146,6 +258,9 @@ public class LenguaService {
         }
     }
 
+    // =========================
+    // CONVERTIR ENTITY A DTO
+    // =========================
     private LenguaResponse toResponse(Lengua lengua) {
 
         Region region = lengua.getRegion();
@@ -159,6 +274,9 @@ public class LenguaService {
         );
     }
 
+    // =========================
+    // NORMALIZAR FAMILIA
+    // =========================
     private String normalizarFamilia(String familia) {
 
         if (familia == null || familia.isBlank()) {
