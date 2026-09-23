@@ -67,6 +67,10 @@ WHERE id_palabra = @palabra_prueba;
 
 ROLLBACK;
 
+SELECT COUNT(*) AS total_despues_rollback
+FROM palabras
+WHERE id_palabra = @palabra_prueba;
+
 
 -- =====================================================
 -- 5. PRUEBA TRIGGER: TEXTO VACIO
