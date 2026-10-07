@@ -9,6 +9,11 @@ public final class UsuarioCrudDtos {
     private UsuarioCrudDtos() {
     }
 
+
+    // =====================================================
+    // CREAR USUARIO
+    // El SUPER_USUARIO puede asignar el rol al crearlo
+    // =====================================================
     public record CrearUsuarioRequest(
 
             @NotBlank(message = "El nombre es obligatorio")
@@ -33,13 +38,28 @@ public final class UsuarioCrudDtos {
                     max = 100,
                     message = "La contraseña debe tener mínimo 6 caracteres"
             )
-            String contrasena
+            String contrasena,
+
+            @NotBlank(message = "El rol es obligatorio")
+            String rol
+
     ) {
     }
 
+
+    // =====================================================
+    // ACTUALIZAR USUARIO
+    // Todos los campos son opcionales
+    //
+    // Se puede actualizar:
+    // - solo nombre
+    // - solo correo
+    // - solo rol
+    // - dos campos
+    // - los tres campos
+    // =====================================================
     public record ActualizarUsuarioRequest(
 
-            @NotBlank(message = "El nombre es obligatorio")
             @Size(
                     min = 3,
                     max = 100,
@@ -47,21 +67,32 @@ public final class UsuarioCrudDtos {
             )
             String nombre,
 
-            @NotBlank(message = "El correo es obligatorio")
             @Email(message = "El correo debe tener un formato válido")
             @Size(
                     max = 120,
                     message = "El correo no puede superar los 120 caracteres"
             )
-            String correo
+            String correo,
+
+            String rol
+
     ) {
     }
 
+
+    // =====================================================
+    // RESPUESTA DEL USUARIO
+    // =====================================================
     public record UsuarioResponse(
+
             Long id,
+
             String nombre,
+
             String correo,
+
             String rol
+
     ) {
     }
 }

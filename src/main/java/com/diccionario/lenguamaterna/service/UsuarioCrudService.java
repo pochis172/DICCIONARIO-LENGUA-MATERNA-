@@ -1,5 +1,6 @@
 package com.diccionario.lenguamaterna.service;
 
+import com.diccionario.lenguamaterna.dto.AsignarRolRequest;
 import com.diccionario.lenguamaterna.dto.UsuarioCrudDtos.ActualizarUsuarioRequest;
 import com.diccionario.lenguamaterna.dto.UsuarioCrudDtos.CrearUsuarioRequest;
 import com.diccionario.lenguamaterna.dto.UsuarioCrudDtos.UsuarioResponse;
@@ -10,6 +11,7 @@ import com.diccionario.lenguamaterna.repository.HistorialRepository;
 import com.diccionario.lenguamaterna.repository.RolRepository;
 import com.diccionario.lenguamaterna.repository.SugerenciaRepository;
 import com.diccionario.lenguamaterna.repository.UsuarioRepository;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -44,9 +46,15 @@ public class UsuarioCrudService {
         this.passwordEncoder = passwordEncoder;
     }
 
+
+    // =====================================================
     // CREATE
+    // SUPER_USUARIO CREA UN USUARIO CON SU ROL
+    // =====================================================
     @Transactional
-    public UsuarioResponse crear(CrearUsuarioRequest request) {
+    public UsuarioResponse crear(
+            CrearUsuarioRequest request
+    ) {
 
         String correo = request.correo()
                 .trim()
@@ -59,12 +67,24 @@ public class UsuarioCrudService {
             );
         }
 
-        Rol rolUsuario = rolRepository
-                .findByNombreIgnoreCase("USUARIO")
+        String nombreRol = request.rol()
+                .trim()
+                .toUpperCase();
+
+        // No permitir crear otro SUPER_USUARIO
+        if (nombreRol.equals("SUPER_USUARIO")) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "No se puede crear otro SUPER_USUARIO desde esta operación."
+            );
+        }
+
+        Rol rol = rolRepository
+                .findByNombreIgnoreCase(nombreRol)
                 .orElseThrow(() ->
                         new ResponseStatusException(
-                                HttpStatus.INTERNAL_SERVER_ERROR,
-                                "No existe el rol USUARIO."
+                                HttpStatus.BAD_REQUEST,
+                                "El rol indicado no existe."
                         )
                 );
 
@@ -85,7 +105,7 @@ public class UsuarioCrudService {
         );
 
         usuario.setRol(
-                rolUsuario
+                rol
         );
 
         Usuario guardado =
@@ -94,7 +114,10 @@ public class UsuarioCrudService {
         return convertir(guardado);
     }
 
-    // READ - LISTAR
+
+    // =====================================================
+    // READ - LISTAR TODOS
+    // =====================================================
     @Transactional(readOnly = true)
     public List<UsuarioResponse> listar() {
 
@@ -105,9 +128,14 @@ public class UsuarioCrudService {
                 .toList();
     }
 
+
+    // =====================================================
     // READ - BUSCAR POR ID
+    // =====================================================
     @Transactional(readOnly = true)
-    public UsuarioResponse buscarPorId(Long id) {
+    public UsuarioResponse buscarPorId(
+            Long id
+    ) {
 
         Usuario usuario =
                 buscarEntidad(id);
@@ -115,7 +143,17 @@ public class UsuarioCrudService {
         return convertir(usuario);
     }
 
-    // UPDATE
+
+    // =====================================================
+    // ACTUALIZAR USUARIO PARCIALMENTE
+    //
+    // Puede modificar:
+    // - solo nombre
+    // - solo correo
+    // - solo rol
+    // - dos campos
+    // - los tres campos
+    // =====================================================
     @Transactional
     public UsuarioResponse actualizar(
             Long id,
@@ -125,30 +163,157 @@ public class UsuarioCrudService {
         Usuario usuario =
                 buscarEntidad(id);
 
-        String correoNuevo =
-                request.correo()
-                        .trim()
-                        .toLowerCase();
 
-        if (!usuario
-                .getCorreo()
-                .equalsIgnoreCase(correoNuevo)
-                &&
-                usuarioRepository
-                        .existsByCorreoIgnoreCase(correoNuevo)) {
+        // Debe enviar mínimo un campo
+        if (request.nombre() == null
+                && request.correo() == null
+                && request.rol() == null) {
 
             throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
-                    "Ya existe un usuario con ese correo."
+                    HttpStatus.BAD_REQUEST,
+                    "Debes enviar al menos un campo para actualizar."
             );
         }
 
-        usuario.setNombre(
-                request.nombre().trim()
-        );
 
-        usuario.setCorreo(
-                correoNuevo
+        // =================================================
+        // ACTUALIZAR NOMBRE
+        // =================================================
+        if (request.nombre() != null) {
+
+            String nombreNuevo =
+                    request.nombre().trim();
+
+            if (nombreNuevo.isBlank()) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "El nombre no puede estar vacío."
+                );
+            }
+
+            usuario.setNombre(
+                    nombreNuevo
+            );
+        }
+
+
+        // =================================================
+        // ACTUALIZAR CORREO
+        // =================================================
+        if (request.correo() != null) {
+
+            String correoNuevo =
+                    request.correo()
+                            .trim()
+                            .toLowerCase();
+
+            if (correoNuevo.isBlank()) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "El correo no puede estar vacío."
+                );
+            }
+
+            if (!usuario
+                    .getCorreo()
+                    .equalsIgnoreCase(correoNuevo)
+                    &&
+                    usuarioRepository
+                            .existsByCorreoIgnoreCase(correoNuevo)) {
+
+                throw new ResponseStatusException(
+                        HttpStatus.CONFLICT,
+                        "Ya existe un usuario con ese correo."
+                );
+            }
+
+            usuario.setCorreo(
+                    correoNuevo
+            );
+        }
+
+
+        // =================================================
+        // ACTUALIZAR ROL
+        // =================================================
+        if (request.rol() != null) {
+
+            String nombreRol =
+                    request.rol()
+                            .trim()
+                            .toUpperCase();
+
+            if (nombreRol.isBlank()) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "El rol no puede estar vacío."
+                );
+            }
+
+            // No permitir asignar SUPER_USUARIO
+            if (nombreRol.equals("SUPER_USUARIO")) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "El rol SUPER_USUARIO no puede asignarse desde esta operación."
+                );
+            }
+
+            Rol rol = rolRepository
+                    .findByNombreIgnoreCase(nombreRol)
+                    .orElseThrow(() ->
+                            new ResponseStatusException(
+                                    HttpStatus.BAD_REQUEST,
+                                    "El rol indicado no existe."
+                            )
+                    );
+
+            usuario.setRol(
+                    rol
+            );
+        }
+
+
+        Usuario actualizado =
+                usuarioRepository.save(usuario);
+
+        return convertir(actualizado);
+    }
+
+
+    // =====================================================
+    // ASIGNAR O CAMBIAR ROL
+    // =====================================================
+    @Transactional
+    public UsuarioResponse asignarRol(
+            Long id,
+            AsignarRolRequest request
+    ) {
+
+        Usuario usuario =
+                buscarEntidad(id);
+
+        String nombreRol = request.rol()
+                .trim()
+                .toUpperCase();
+
+        if (nombreRol.equals("SUPER_USUARIO")) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "El rol SUPER_USUARIO no puede asignarse desde esta operación."
+            );
+        }
+
+        Rol rol = rolRepository
+                .findByNombreIgnoreCase(nombreRol)
+                .orElseThrow(() ->
+                        new ResponseStatusException(
+                                HttpStatus.BAD_REQUEST,
+                                "El rol indicado no existe."
+                        )
+                );
+
+        usuario.setRol(
+                rol
         );
 
         Usuario actualizado =
@@ -157,9 +322,14 @@ public class UsuarioCrudService {
         return convertir(actualizado);
     }
 
+
+    // =====================================================
     // DELETE
+    // =====================================================
     @Transactional
-    public void eliminar(Long id) {
+    public void eliminar(
+            Long id
+    ) {
 
         Usuario usuario =
                 buscarEntidad(id);
@@ -177,7 +347,13 @@ public class UsuarioCrudService {
                 .delete(usuario);
     }
 
-    private Usuario buscarEntidad(Long id) {
+
+    // =====================================================
+    // BUSCAR ENTIDAD USUARIO
+    // =====================================================
+    private Usuario buscarEntidad(
+            Long id
+    ) {
 
         return usuarioRepository
                 .findById(id)
@@ -189,6 +365,10 @@ public class UsuarioCrudService {
                 );
     }
 
+
+    // =====================================================
+    // CONVERTIR A RESPONSE
+    // =====================================================
     private UsuarioResponse convertir(
             Usuario usuario
     ) {

@@ -1,20 +1,22 @@
 package com.diccionario.lenguamaterna.controller;
 
 import com.diccionario.lenguamaterna.config.SessionUtil;
+import com.diccionario.lenguamaterna.dto.DictionaryDtos.ActualizarPalabraRequest;
 import com.diccionario.lenguamaterna.dto.DictionaryDtos.PalabraRequest;
 import com.diccionario.lenguamaterna.dto.DictionaryDtos.PalabraResponse;
 import com.diccionario.lenguamaterna.dto.UserDtos.EstadoSugerenciaRequest;
 import com.diccionario.lenguamaterna.dto.UserDtos.SugerenciaResponse;
 import com.diccionario.lenguamaterna.service.AdminService;
+
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
-import com.diccionario.lenguamaterna.dto.DictionaryDtos.ActualizarPalabraRequest;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -45,39 +47,37 @@ public class AdminController {
         this.adminService = adminService;
     }
 
-    /*
-     * GET
-     * /api/admin/palabras
-     *
-     * También permite:
-     * /api/admin/palabras?q=casa
-     */
+
+    // =====================================================
+    // LISTAR PALABRAS
+    // EDITOR, ADMINISTRADOR O SUPER_USUARIO
+    // =====================================================
     @GetMapping("/palabras")
     public ResponseEntity<List<PalabraResponse>> palabras(
             @RequestParam(required = false) String q,
             HttpSession session
     ) {
 
-        SessionUtil.requireAdmin(session);
+        SessionUtil.requireEditor(session);
 
         return ResponseEntity.ok(
                 adminService.listarPalabras(q)
         );
     }
 
-    /*
-     * POST
-     * /api/admin/palabras
-     *
-     * Retorna 201 Created.
-     */
+
+    // =====================================================
+    // CREAR PALABRA
+    // EDITOR, ADMINISTRADOR O SUPER_USUARIO
+    // =====================================================
     @PostMapping("/palabras")
     public ResponseEntity<PalabraResponse> crearPalabra(
-            @Valid @RequestBody PalabraRequest request,
+            @Valid
+            @RequestBody PalabraRequest request,
             HttpSession session
     ) {
 
-        SessionUtil.requireAdmin(session);
+        SessionUtil.requireEditor(session);
 
         PalabraResponse creada =
                 adminService.crear(request);
@@ -87,18 +87,20 @@ public class AdminController {
                 .body(creada);
     }
 
-    /*
-     * PUT
-     * /api/admin/palabras/{id}
-     */
+
+    // =====================================================
+    // ACTUALIZAR PALABRA COMPLETAMENTE
+    // EDITOR, ADMINISTRADOR O SUPER_USUARIO
+    // =====================================================
     @PutMapping("/palabras/{id}")
     public ResponseEntity<PalabraResponse> editarPalabra(
             @PathVariable Long id,
-            @Valid @RequestBody PalabraRequest request,
+            @Valid
+            @RequestBody PalabraRequest request,
             HttpSession session
     ) {
 
-        SessionUtil.requireAdmin(session);
+        SessionUtil.requireEditor(session);
 
         return ResponseEntity.ok(
                 adminService.editar(
@@ -108,10 +110,37 @@ public class AdminController {
         );
     }
 
-    /*
-     * DELETE
-     * /api/admin/palabras/{id}
-     */
+
+    // =====================================================
+    // ACTUALIZAR PALABRA PARCIALMENTE
+    // EDITOR, ADMINISTRADOR O SUPER_USUARIO
+    // =====================================================
+    @PatchMapping("/palabras/{id}")
+    public ResponseEntity<PalabraResponse> actualizarDatosPalabra(
+            @PathVariable Long id,
+            @Valid
+            @RequestBody ActualizarPalabraRequest request,
+            HttpSession session
+    ) {
+
+        SessionUtil.requireEditor(session);
+
+        PalabraResponse actualizada =
+                adminService.actualizarDatos(
+                        id,
+                        request
+                );
+
+        return ResponseEntity.ok(
+                actualizada
+        );
+    }
+
+
+    // =====================================================
+    // ELIMINAR PALABRA
+    // SOLO ADMINISTRADOR O SUPER_USUARIO
+    // =====================================================
     @DeleteMapping("/palabras/{id}")
     public ResponseEntity<Void> eliminarPalabra(
             @PathVariable Long id,
@@ -127,9 +156,11 @@ public class AdminController {
                 .build();
     }
 
-    /*
-     * SUGERENCIAS
-     */
+
+    // =====================================================
+    // LISTAR SUGERENCIAS
+    // SOLO ADMINISTRADOR O SUPER_USUARIO
+    // =====================================================
     @GetMapping("/sugerencias")
     public List<SugerenciaResponse> sugerencias(
             HttpSession session
@@ -140,12 +171,16 @@ public class AdminController {
         return adminService.sugerencias();
     }
 
+
+    // =====================================================
+    // CAMBIAR ESTADO DE SUGERENCIA
+    // SOLO ADMINISTRADOR O SUPER_USUARIO
+    // =====================================================
     @PatchMapping("/sugerencias/{id}/estado")
     public SugerenciaResponse estado(
             @PathVariable Long id,
             @Valid
-            @RequestBody
-            EstadoSugerenciaRequest request,
+            @RequestBody EstadoSugerenciaRequest request,
             HttpSession session
     ) {
 
@@ -158,9 +193,11 @@ public class AdminController {
                 );
     }
 
-    /*
-     * SUBIDA DE AUDIO
-     */
+
+    // =====================================================
+    // SUBIR AUDIO
+    // EDITOR, ADMINISTRADOR O SUPER_USUARIO
+    // =====================================================
     @PostMapping("/audio/upload")
     public Map<String, String> subirAudio(
             @RequestParam("file")
@@ -168,7 +205,8 @@ public class AdminController {
             HttpSession session
     ) throws IOException {
 
-        SessionUtil.requireAdmin(session);
+        SessionUtil.requireEditor(session);
+
 
         if (file.isEmpty()) {
 
@@ -178,12 +216,14 @@ public class AdminController {
             );
         }
 
+
         String original =
                 StringUtils.cleanPath(
                         file.getOriginalFilename() == null
                                 ? "audio"
                                 : file.getOriginalFilename()
                 );
+
 
         String extension =
                 original.contains(".")
@@ -194,6 +234,7 @@ public class AdminController {
                         .toLowerCase()
                         : "";
 
+
         if (!AUDIO_EXTENSIONS.contains(extension)) {
 
             throw new ResponseStatusException(
@@ -202,20 +243,24 @@ public class AdminController {
             );
         }
 
+
         Path directorio =
                 Path.of(
                         "uploads",
                         "audio"
                 );
 
+
         Files.createDirectories(
                 directorio
         );
+
 
         String nombre =
                 UUID.randomUUID()
                         + "."
                         + extension;
+
 
         Files.copy(
                 file.getInputStream(),
@@ -223,31 +268,10 @@ public class AdminController {
                 StandardCopyOption.REPLACE_EXISTING
         );
 
+
         return Map.of(
                 "url",
                 "/uploads/audio/" + nombre
         );
     }
-
-    /*
- * PATCH /api/admin/palabras/{id}
- *
- * Actualiza los datos enviados y conserva las relaciones.
- */
-@PatchMapping("/palabras/{id}")
-public ResponseEntity<PalabraResponse> actualizarDatosPalabra(
-        @PathVariable Long id,
-        @Valid @RequestBody ActualizarPalabraRequest request,
-        HttpSession session
-) {
-
-    SessionUtil.requireAdmin(session);
-
-    PalabraResponse actualizada = adminService.actualizarDatos(
-            id,
-            request
-    );
-
-    return ResponseEntity.ok(actualizada);
-}
 }
