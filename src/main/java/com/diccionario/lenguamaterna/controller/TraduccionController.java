@@ -1,15 +1,16 @@
 package com.diccionario.lenguamaterna.controller;
 
-import com.diccionario.lenguamaterna.config.SessionUtil;
 import com.diccionario.lenguamaterna.dto.TraduccionDtos.TraduccionRequest;
 import com.diccionario.lenguamaterna.dto.TraduccionDtos.TraduccionResponse;
 import com.diccionario.lenguamaterna.service.TraduccionService;
 
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import org.springframework.security.access.prepost.PreAuthorize;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,64 +28,44 @@ public class TraduccionController {
     }
 
 
-    // =====================================================
     // LISTAR TODAS LAS TRADUCCIONES
     // EDITOR, ADMINISTRADOR O SUPER_USUARIO
-    // =====================================================
+    @PreAuthorize("hasAnyRole('EDITOR', 'ADMINISTRADOR', 'SUPER_USUARIO')")
     @GetMapping
-    public List<TraduccionResponse> listar(
-            HttpSession session
-    ) {
-
-        SessionUtil.requireEditor(session);
+    public List<TraduccionResponse> listar() {
 
         return traduccionService.listar();
     }
 
 
-    // =====================================================
-    // BUSCAR POR PALABRA O TRADUCCIÓN
-    // EDITOR, ADMINISTRADOR O SUPER_USUARIO
-    // =====================================================
+    // BUSCAR POR PALABRA O TRADUCCION
+    @PreAuthorize("hasAnyRole('EDITOR', 'ADMINISTRADOR', 'SUPER_USUARIO')")
     @GetMapping("/buscar")
     public List<TraduccionResponse> buscar(
-            @RequestParam String q,
-            HttpSession session
+            @RequestParam String q
     ) {
-
-        SessionUtil.requireEditor(session);
 
         return traduccionService.buscar(q);
     }
 
 
-    // =====================================================
-    // BUSCAR TRADUCCIÓN POR ID
-    // EDITOR, ADMINISTRADOR O SUPER_USUARIO
-    // =====================================================
+    // BUSCAR TRADUCCION POR ID
+    @PreAuthorize("hasAnyRole('EDITOR', 'ADMINISTRADOR', 'SUPER_USUARIO')")
     @GetMapping("/{id}")
     public TraduccionResponse buscarPorId(
-            @PathVariable Long id,
-            HttpSession session
+            @PathVariable Long id
     ) {
-
-        SessionUtil.requireEditor(session);
 
         return traduccionService.buscarPorId(id);
     }
 
 
-    // =====================================================
     // LISTAR TRADUCCIONES POR PALABRA
-    // EDITOR, ADMINISTRADOR O SUPER_USUARIO
-    // =====================================================
+    @PreAuthorize("hasAnyRole('EDITOR', 'ADMINISTRADOR', 'SUPER_USUARIO')")
     @GetMapping("/palabra/{palabraId}")
     public List<TraduccionResponse> listarPorPalabra(
-            @PathVariable Long palabraId,
-            HttpSession session
+            @PathVariable Long palabraId
     ) {
-
-        SessionUtil.requireEditor(session);
 
         return traduccionService.listarPorPalabra(
                 palabraId
@@ -92,17 +73,12 @@ public class TraduccionController {
     }
 
 
-    // =====================================================
     // LISTAR TRADUCCIONES POR LENGUA
-    // EDITOR, ADMINISTRADOR O SUPER_USUARIO
-    // =====================================================
+    @PreAuthorize("hasAnyRole('EDITOR', 'ADMINISTRADOR', 'SUPER_USUARIO')")
     @GetMapping("/lengua/{lenguaId}")
     public List<TraduccionResponse> listarPorLengua(
-            @PathVariable Long lenguaId,
-            HttpSession session
+            @PathVariable Long lenguaId
     ) {
-
-        SessionUtil.requireEditor(session);
 
         return traduccionService.listarPorLengua(
                 lenguaId
@@ -110,18 +86,13 @@ public class TraduccionController {
     }
 
 
-    // =====================================================
-    // CREAR TRADUCCIÓN
-    // EDITOR, ADMINISTRADOR O SUPER_USUARIO
-    // =====================================================
+    // CREAR TRADUCCION
+    @PreAuthorize("hasAnyRole('EDITOR', 'ADMINISTRADOR', 'SUPER_USUARIO')")
     @PostMapping
     public ResponseEntity<TraduccionResponse> crear(
             @Valid
-            @RequestBody TraduccionRequest request,
-            HttpSession session
+            @RequestBody TraduccionRequest request
     ) {
-
-        SessionUtil.requireEditor(session);
 
         TraduccionResponse creada =
                 traduccionService.crear(request);
@@ -132,19 +103,14 @@ public class TraduccionController {
     }
 
 
-    // =====================================================
-    // ACTUALIZAR TRADUCCIÓN
-    // EDITOR, ADMINISTRADOR O SUPER_USUARIO
-    // =====================================================
+    // ACTUALIZAR TRADUCCION
+    @PreAuthorize("hasAnyRole('EDITOR', 'ADMINISTRADOR', 'SUPER_USUARIO')")
     @PutMapping("/{id}")
     public TraduccionResponse actualizar(
             @PathVariable Long id,
             @Valid
-            @RequestBody TraduccionRequest request,
-            HttpSession session
+            @RequestBody TraduccionRequest request
     ) {
-
-        SessionUtil.requireEditor(session);
 
         return traduccionService.actualizar(
                 id,
@@ -153,17 +119,13 @@ public class TraduccionController {
     }
 
 
-    // =====================================================
-    // ELIMINAR TRADUCCIÓN
+    // ELIMINAR TRADUCCION
     // SOLO ADMINISTRADOR O SUPER_USUARIO
-    // =====================================================
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'SUPER_USUARIO')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(
-            @PathVariable Long id,
-            HttpSession session
+            @PathVariable Long id
     ) {
-
-        SessionUtil.requireAdmin(session);
 
         traduccionService.eliminar(id);
 

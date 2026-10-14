@@ -23,38 +23,114 @@
     </properties>
 
     <dependencies>
+
+        <!-- ===================================================== -->
+        <!-- JPA / BASE DE DATOS                                   -->
+        <!-- Permite trabajar con entidades, repositorios y MySQL -->
+        <!-- ===================================================== -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
 
+
+        <!-- ===================================================== -->
+        <!-- WEB / API REST                                        -->
+        <!-- Permite crear Controllers y rutas GET, POST, PATCH... -->
+        <!-- ===================================================== -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webmvc</artifactId>
         </dependency>
 
+
+        <!-- ===================================================== -->
+        <!-- VALIDACIONES                                          -->
+        <!-- Permite usar @Valid, @NotBlank, @Email, @Size, etc.  -->
+        <!-- ===================================================== -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
+
+        <!-- ===================================================== -->
+        <!-- SPRING SECURITY                                       -->
+        <!-- Maneja autenticación, autorización y protección       -->
+        <!-- de endpoints. También incluye PasswordEncoder/BCrypt. -->
+        <!-- ===================================================== -->
         <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-crypto</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
+
+        <!-- ===================================================== -->
+        <!-- JWT - API                                             -->
+        <!-- Contiene las clases principales para crear, leer      -->
+        <!-- y validar tokens JWT.                                 -->
+        <!-- ===================================================== -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.12.6</version>
+        </dependency>
+
+
+        <!-- ===================================================== -->
+        <!-- JWT - IMPLEMENTACIÓN                                  -->
+        <!-- Contiene la implementación interna de JJWT.           -->
+        <!-- Se utiliza cuando la aplicación está ejecutándose.    -->
+        <!-- ===================================================== -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.12.6</version>
+            <scope>runtime</scope>
+        </dependency>
+
+
+        <!-- ===================================================== -->
+        <!-- JWT - JACKSON                                         -->
+        <!-- Permite convertir los datos del token JWT a JSON      -->
+        <!-- y leer los claims como usuario, rol, correo, etc.     -->
+        <!-- ===================================================== -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.12.6</version>
+            <scope>runtime</scope>
+        </dependency>
+
+
+        <!-- ===================================================== -->
+        <!-- MYSQL CONNECTOR                                       -->
+        <!-- Permite que Spring Boot se conecte con MySQL.         -->
+        <!-- ===================================================== -->
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <scope>runtime</scope>
         </dependency>
 
+
+        <!-- ===================================================== -->
+        <!-- H2 DATABASE                                           -->
+        <!-- Base de datos ligera utilizada principalmente         -->
+        <!-- para pruebas o ejecución en memoria.                  -->
+        <!-- ===================================================== -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>runtime</scope>
         </dependency>
 
+
+        <!-- ===================================================== -->
+        <!-- DEVTOOLS                                              -->
+        <!-- Facilita el desarrollo y reinicia automáticamente     -->
+        <!-- Spring Boot cuando detecta ciertos cambios.           -->
+        <!-- ===================================================== -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
@@ -62,25 +138,41 @@
             <optional>true</optional>
         </dependency>
 
+
+        <!-- ===================================================== -->
+        <!-- PRUEBAS DE JPA                                        -->
+        <!-- ===================================================== -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa-test</artifactId>
             <scope>test</scope>
         </dependency>
 
+
+        <!-- ===================================================== -->
+        <!-- PRUEBAS DE CONTROLADORES WEB                          -->
+        <!-- ===================================================== -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webmvc-test</artifactId>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
+
 
     <build>
         <plugins>
+
+            <!-- ================================================= -->
+            <!-- PLUGIN DE SPRING BOOT                             -->
+            <!-- Permite compilar y ejecutar la aplicación.       -->
+            <!-- ================================================= -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+
         </plugins>
     </build>
 

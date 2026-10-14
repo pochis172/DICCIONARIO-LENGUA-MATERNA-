@@ -5,10 +5,13 @@ import com.diccionario.lenguamaterna.dto.UserDtos.HistorialResponse;
 import com.diccionario.lenguamaterna.dto.UserDtos.PerfilRequest;
 import com.diccionario.lenguamaterna.dto.UserDtos.PasswordRequest;
 import com.diccionario.lenguamaterna.dto.AuthDtos.UsuarioResponse;
+
 import com.diccionario.lenguamaterna.entity.Favorito;
 import com.diccionario.lenguamaterna.entity.Palabra;
 import com.diccionario.lenguamaterna.entity.Usuario;
+
 import com.diccionario.lenguamaterna.repository.*;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -45,24 +48,50 @@ public class UserService {
         this.dictionaryService = dictionaryService;
         this.passwordEncoder = passwordEncoder;
     }
+
+
+    // OBTENER ID DEL USUARIO AUTENTICADO
+    // El correo viene del token JWT
     @Transactional(readOnly = true)
-public UsuarioResponse obtenerPerfil(Long usuarioId) {
+    public Long obtenerIdPorCorreo(
+            String correo
+    ) {
 
-    Usuario usuario = usuarioRepository.findById(usuarioId)
-            .orElseThrow(() -> new ResponseStatusException(
-                    HttpStatus.NOT_FOUND,
-                    "Usuario no encontrado."
-            ));
+        Usuario usuario = usuarioRepository
+                .findByCorreoIgnoreCase(correo)
+                .orElseThrow(() ->
+                        new ResponseStatusException(
+                                HttpStatus.UNAUTHORIZED,
+                                "El usuario autenticado ya no existe."
+                        )
+                );
 
-    return new UsuarioResponse(
-            usuario.getId(),
-            usuario.getNombre(),
-            usuario.getCorreo(),
-            usuario.getRol().getNombre()
-    );
-}
+        return usuario.getId();
+    }
 
 
+    // OBTENER PERFIL
+    @Transactional(readOnly = true)
+    public UsuarioResponse obtenerPerfil(
+            Long usuarioId
+    ) {
+
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Usuario no encontrado."
+                ));
+
+        return new UsuarioResponse(
+                usuario.getId(),
+                usuario.getNombre(),
+                usuario.getCorreo(),
+                usuario.getRol().getNombre()
+        );
+    }
+
+
+    // ACTUALIZAR PERFIL
     @Transactional
     public UsuarioResponse actualizarPerfil(
             Long usuarioId,
@@ -75,19 +104,25 @@ public UsuarioResponse obtenerPerfil(Long usuarioId) {
                         "Usuario no encontrado."
                 ));
 
-        String nuevoNombre = request.nombre().trim();
-        String nuevoCorreo = request.correo().trim().toLowerCase();
+        String nuevoNombre =
+                request.nombre().trim();
 
-        /*
-         * Solo comprobamos correo duplicado si el usuario realmente
-         * está intentando cambiar su correo actual.
-         */
-        if (!usuario.getCorreo().equalsIgnoreCase(nuevoCorreo)) {
+        String nuevoCorreo =
+                request.correo()
+                        .trim()
+                        .toLowerCase();
+
+        if (!usuario.getCorreo()
+                .equalsIgnoreCase(nuevoCorreo)) {
 
             boolean correoExiste =
-                    usuarioRepository.existsByCorreoIgnoreCase(nuevoCorreo);
+                    usuarioRepository
+                            .existsByCorreoIgnoreCase(
+                                    nuevoCorreo
+                            );
 
             if (correoExiste) {
+
                 throw new ResponseStatusException(
                         HttpStatus.CONFLICT,
                         "Ya existe una cuenta registrada con ese correo."
@@ -95,10 +130,16 @@ public UsuarioResponse obtenerPerfil(Long usuarioId) {
             }
         }
 
-        usuario.setNombre(nuevoNombre);
-        usuario.setCorreo(nuevoCorreo);
+        usuario.setNombre(
+                nuevoNombre
+        );
 
-        Usuario usuarioActualizado = usuarioRepository.save(usuario);
+        usuario.setCorreo(
+                nuevoCorreo
+        );
+
+        Usuario usuarioActualizado =
+                usuarioRepository.save(usuario);
 
         return new UsuarioResponse(
                 usuarioActualizado.getId(),
@@ -108,6 +149,8 @@ public UsuarioResponse obtenerPerfil(Long usuarioId) {
         );
     }
 
+
+    // CAMBIAR CONTRASEÑA
     @Transactional
     public void cambiarPassword(
             Long usuarioId,
@@ -132,28 +175,38 @@ public UsuarioResponse obtenerPerfil(Long usuarioId) {
         }
 
         usuario.setContrasena(
-                passwordEncoder.encode(request.nueva())
+                passwordEncoder.encode(
+                        request.nueva()
+                )
         );
 
         usuarioRepository.save(usuario);
     }
 
+
+    // LISTAR FAVORITOS
     @Transactional(readOnly = true)
-    public List<FavoritoResponse> favoritos(Long usuarioId) {
+    public List<FavoritoResponse> favoritos(
+            Long usuarioId
+    ) {
 
         return favoritoRepository
                 .findByUsuarioIdOrderByIdDesc(usuarioId)
                 .stream()
-                .map(f -> new FavoritoResponse(
-                        f.getId(),
-                        dictionaryService.toResponse(
-                                f.getPalabra(),
-                                usuarioId
+                .map(f ->
+                        new FavoritoResponse(
+                                f.getId(),
+                                dictionaryService.toResponse(
+                                        f.getPalabra(),
+                                        usuarioId
+                                )
                         )
-                ))
+                )
                 .toList();
     }
 
+
+    // AGREGAR FAVORITO
     @Transactional
     public void agregarFavorito(
             Long usuarioId,
@@ -165,6 +218,7 @@ public UsuarioResponse obtenerPerfil(Long usuarioId) {
                         usuarioId,
                         palabraId
                 )) {
+
             return;
         }
 
@@ -180,14 +234,24 @@ public UsuarioResponse obtenerPerfil(Long usuarioId) {
                         "Palabra no encontrada."
                 ));
 
-        Favorito favorito = new Favorito();
+        Favorito favorito =
+                new Favorito();
 
-        favorito.setUsuario(usuario);
-        favorito.setPalabra(palabra);
+        favorito.setUsuario(
+                usuario
+        );
 
-        favoritoRepository.save(favorito);
+        favorito.setPalabra(
+                palabra
+        );
+
+        favoritoRepository.save(
+                favorito
+        );
     }
 
+
+    // QUITAR FAVORITO
     @Transactional
     public void quitarFavorito(
             Long usuarioId,
@@ -199,25 +263,36 @@ public UsuarioResponse obtenerPerfil(Long usuarioId) {
                         usuarioId,
                         palabraId
                 )
-                .ifPresent(favoritoRepository::delete);
+                .ifPresent(
+                        favoritoRepository::delete
+                );
     }
 
+
+    // VER HISTORIAL
     @Transactional(readOnly = true)
-    public List<HistorialResponse> historial(Long usuarioId) {
+    public List<HistorialResponse> historial(
+            Long usuarioId
+    ) {
 
         return historialRepository
                 .findTop50ByUsuarioIdOrderByFechaDesc(usuarioId)
                 .stream()
                 .map(h -> {
 
-                    String traduccion = traduccionRepository
-                            .findByPalabraIdOrderByIdAsc(
-                                    h.getPalabra().getId()
-                            )
-                            .stream()
-                            .findFirst()
-                            .map(t -> t.getTraduccion())
-                            .orElse("Sin traducción");
+                    String traduccion =
+                            traduccionRepository
+                                    .findByPalabraIdOrderByIdAsc(
+                                            h.getPalabra().getId()
+                                    )
+                                    .stream()
+                                    .findFirst()
+                                    .map(t ->
+                                            t.getTraduccion()
+                                    )
+                                    .orElse(
+                                            "Sin traducción"
+                                    );
 
                     return new HistorialResponse(
                             h.getId(),
@@ -230,9 +305,16 @@ public UsuarioResponse obtenerPerfil(Long usuarioId) {
                 .toList();
     }
 
-    @Transactional
-    public void limpiarHistorial(Long usuarioId) {
 
-        historialRepository.deleteByUsuarioId(usuarioId);
+    // LIMPIAR HISTORIAL
+    @Transactional
+    public void limpiarHistorial(
+            Long usuarioId
+    ) {
+
+        historialRepository
+                .deleteByUsuarioId(
+                        usuarioId
+                );
     }
 }

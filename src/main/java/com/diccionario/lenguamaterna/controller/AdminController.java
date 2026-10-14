@@ -1,6 +1,5 @@
 package com.diccionario.lenguamaterna.controller;
 
-import com.diccionario.lenguamaterna.config.SessionUtil;
 import com.diccionario.lenguamaterna.dto.DictionaryDtos.ActualizarPalabraRequest;
 import com.diccionario.lenguamaterna.dto.DictionaryDtos.PalabraRequest;
 import com.diccionario.lenguamaterna.dto.DictionaryDtos.PalabraResponse;
@@ -8,12 +7,15 @@ import com.diccionario.lenguamaterna.dto.UserDtos.EstadoSugerenciaRequest;
 import com.diccionario.lenguamaterna.dto.UserDtos.SugerenciaResponse;
 import com.diccionario.lenguamaterna.service.AdminService;
 
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import org.springframework.security.access.prepost.PreAuthorize;
+
 import org.springframework.util.StringUtils;
+
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -48,17 +50,13 @@ public class AdminController {
     }
 
 
-    // =====================================================
     // LISTAR PALABRAS
     // EDITOR, ADMINISTRADOR O SUPER_USUARIO
-    // =====================================================
+    @PreAuthorize("hasAnyRole('EDITOR', 'ADMINISTRADOR', 'SUPER_USUARIO')")
     @GetMapping("/palabras")
     public ResponseEntity<List<PalabraResponse>> palabras(
-            @RequestParam(required = false) String q,
-            HttpSession session
+            @RequestParam(required = false) String q
     ) {
-
-        SessionUtil.requireEditor(session);
 
         return ResponseEntity.ok(
                 adminService.listarPalabras(q)
@@ -66,18 +64,14 @@ public class AdminController {
     }
 
 
-    // =====================================================
     // CREAR PALABRA
     // EDITOR, ADMINISTRADOR O SUPER_USUARIO
-    // =====================================================
+    @PreAuthorize("hasAnyRole('EDITOR', 'ADMINISTRADOR', 'SUPER_USUARIO')")
     @PostMapping("/palabras")
     public ResponseEntity<PalabraResponse> crearPalabra(
             @Valid
-            @RequestBody PalabraRequest request,
-            HttpSession session
+            @RequestBody PalabraRequest request
     ) {
-
-        SessionUtil.requireEditor(session);
 
         PalabraResponse creada =
                 adminService.crear(request);
@@ -88,19 +82,15 @@ public class AdminController {
     }
 
 
-    // =====================================================
     // ACTUALIZAR PALABRA COMPLETAMENTE
     // EDITOR, ADMINISTRADOR O SUPER_USUARIO
-    // =====================================================
+    @PreAuthorize("hasAnyRole('EDITOR', 'ADMINISTRADOR', 'SUPER_USUARIO')")
     @PutMapping("/palabras/{id}")
     public ResponseEntity<PalabraResponse> editarPalabra(
             @PathVariable Long id,
             @Valid
-            @RequestBody PalabraRequest request,
-            HttpSession session
+            @RequestBody PalabraRequest request
     ) {
-
-        SessionUtil.requireEditor(session);
 
         return ResponseEntity.ok(
                 adminService.editar(
@@ -111,19 +101,15 @@ public class AdminController {
     }
 
 
-    // =====================================================
     // ACTUALIZAR PALABRA PARCIALMENTE
     // EDITOR, ADMINISTRADOR O SUPER_USUARIO
-    // =====================================================
+    @PreAuthorize("hasAnyRole('EDITOR', 'ADMINISTRADOR', 'SUPER_USUARIO')")
     @PatchMapping("/palabras/{id}")
     public ResponseEntity<PalabraResponse> actualizarDatosPalabra(
             @PathVariable Long id,
             @Valid
-            @RequestBody ActualizarPalabraRequest request,
-            HttpSession session
+            @RequestBody ActualizarPalabraRequest request
     ) {
-
-        SessionUtil.requireEditor(session);
 
         PalabraResponse actualizada =
                 adminService.actualizarDatos(
@@ -137,17 +123,13 @@ public class AdminController {
     }
 
 
-    // =====================================================
     // ELIMINAR PALABRA
     // SOLO ADMINISTRADOR O SUPER_USUARIO
-    // =====================================================
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'SUPER_USUARIO')")
     @DeleteMapping("/palabras/{id}")
     public ResponseEntity<Void> eliminarPalabra(
-            @PathVariable Long id,
-            HttpSession session
+            @PathVariable Long id
     ) {
-
-        SessionUtil.requireAdmin(session);
 
         adminService.eliminar(id);
 
@@ -157,34 +139,25 @@ public class AdminController {
     }
 
 
-    // =====================================================
     // LISTAR SUGERENCIAS
     // SOLO ADMINISTRADOR O SUPER_USUARIO
-    // =====================================================
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'SUPER_USUARIO')")
     @GetMapping("/sugerencias")
-    public List<SugerenciaResponse> sugerencias(
-            HttpSession session
-    ) {
-
-        SessionUtil.requireAdmin(session);
+    public List<SugerenciaResponse> sugerencias() {
 
         return adminService.sugerencias();
     }
 
 
-    // =====================================================
     // CAMBIAR ESTADO DE SUGERENCIA
     // SOLO ADMINISTRADOR O SUPER_USUARIO
-    // =====================================================
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'SUPER_USUARIO')")
     @PatchMapping("/sugerencias/{id}/estado")
     public SugerenciaResponse estado(
             @PathVariable Long id,
             @Valid
-            @RequestBody EstadoSugerenciaRequest request,
-            HttpSession session
+            @RequestBody EstadoSugerenciaRequest request
     ) {
-
-        SessionUtil.requireAdmin(session);
 
         return adminService
                 .cambiarEstadoSugerencia(
@@ -194,19 +167,14 @@ public class AdminController {
     }
 
 
-    // =====================================================
     // SUBIR AUDIO
     // EDITOR, ADMINISTRADOR O SUPER_USUARIO
-    // =====================================================
+    @PreAuthorize("hasAnyRole('EDITOR', 'ADMINISTRADOR', 'SUPER_USUARIO')")
     @PostMapping("/audio/upload")
     public Map<String, String> subirAudio(
             @RequestParam("file")
-            MultipartFile file,
-            HttpSession session
+            MultipartFile file
     ) throws IOException {
-
-        SessionUtil.requireEditor(session);
-
 
         if (file.isEmpty()) {
 
@@ -216,14 +184,12 @@ public class AdminController {
             );
         }
 
-
         String original =
                 StringUtils.cleanPath(
                         file.getOriginalFilename() == null
                                 ? "audio"
                                 : file.getOriginalFilename()
                 );
-
 
         String extension =
                 original.contains(".")
@@ -234,7 +200,6 @@ public class AdminController {
                         .toLowerCase()
                         : "";
 
-
         if (!AUDIO_EXTENSIONS.contains(extension)) {
 
             throw new ResponseStatusException(
@@ -243,31 +208,26 @@ public class AdminController {
             );
         }
 
-
         Path directorio =
                 Path.of(
                         "uploads",
                         "audio"
                 );
 
-
         Files.createDirectories(
                 directorio
         );
-
 
         String nombre =
                 UUID.randomUUID()
                         + "."
                         + extension;
 
-
         Files.copy(
                 file.getInputStream(),
                 directorio.resolve(nombre),
                 StandardCopyOption.REPLACE_EXISTING
         );
-
 
         return Map.of(
                 "url",

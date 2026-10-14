@@ -1,17 +1,18 @@
 package com.diccionario.lenguamaterna.controller;
 
-import com.diccionario.lenguamaterna.config.SessionUtil;
 import com.diccionario.lenguamaterna.dto.LenguaDtos.LenguaPatchRequest;
 import com.diccionario.lenguamaterna.dto.LenguaDtos.LenguaRequest;
 import com.diccionario.lenguamaterna.dto.LenguaDtos.LenguaResponse;
 import com.diccionario.lenguamaterna.dto.LenguaDtos.LenguaResumenResponse;
 import com.diccionario.lenguamaterna.service.LenguaService;
 
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import org.springframework.security.access.prepost.PreAuthorize;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,134 +23,95 @@ public class LenguaController {
 
     private final LenguaService lenguaService;
 
-    public LenguaController(LenguaService lenguaService) {
+    public LenguaController(
+            LenguaService lenguaService
+    ) {
         this.lenguaService = lenguaService;
     }
 
 
-    // =====================================================
     // LISTAR TODAS LAS LENGUAS
-    // EDITOR, ADMINISTRADOR O SUPER_USUARIO
-    // =====================================================
+    @PreAuthorize("hasAnyRole('EDITOR', 'ADMINISTRADOR', 'SUPER_USUARIO')")
     @GetMapping
-    public List<LenguaResponse> listar(
-            HttpSession session
-    ) {
-
-        SessionUtil.requireEditor(session);
+    public List<LenguaResponse> listar() {
 
         return lenguaService.listar();
     }
 
 
-    // =====================================================
     // BUSCAR POR NOMBRE
-    // EDITOR, ADMINISTRADOR O SUPER_USUARIO
-    // =====================================================
+    @PreAuthorize("hasAnyRole('EDITOR', 'ADMINISTRADOR', 'SUPER_USUARIO')")
     @GetMapping("/buscar")
     public List<LenguaResponse> buscarPorNombre(
-            @RequestParam String nombre,
-            HttpSession session
+            @RequestParam String nombre
     ) {
-
-        SessionUtil.requireEditor(session);
 
         return lenguaService.buscarPorNombre(nombre);
     }
 
 
-    // =====================================================
-    // BUSCAR POR ID DE REGIÓN
-    // EDITOR, ADMINISTRADOR O SUPER_USUARIO
-    // =====================================================
+    // BUSCAR POR ID DE REGION
+    @PreAuthorize("hasAnyRole('EDITOR', 'ADMINISTRADOR', 'SUPER_USUARIO')")
     @GetMapping("/region/{regionId}")
     public List<LenguaResponse> buscarPorRegion(
-            @PathVariable Long regionId,
-            HttpSession session
+            @PathVariable Long regionId
     ) {
-
-        SessionUtil.requireEditor(session);
 
         return lenguaService.buscarPorRegion(regionId);
     }
 
 
-    // =====================================================
-    // BUSCAR POR NOMBRE DE REGIÓN
-    // EDITOR, ADMINISTRADOR O SUPER_USUARIO
-    // =====================================================
+    // BUSCAR POR NOMBRE DE REGION
+    @PreAuthorize("hasAnyRole('EDITOR', 'ADMINISTRADOR', 'SUPER_USUARIO')")
     @GetMapping("/region")
     public List<LenguaResponse> buscarPorNombreRegion(
-            @RequestParam String nombre,
-            HttpSession session
+            @RequestParam String nombre
     ) {
-
-        SessionUtil.requireEditor(session);
 
         return lenguaService.buscarPorNombreRegion(nombre);
     }
 
 
-    // =====================================================
-    // BUSCAR POR FAMILIA LINGÜÍSTICA
-    // EDITOR, ADMINISTRADOR O SUPER_USUARIO
-    // =====================================================
+    // BUSCAR POR FAMILIA LINGUISTICA
+    @PreAuthorize("hasAnyRole('EDITOR', 'ADMINISTRADOR', 'SUPER_USUARIO')")
     @GetMapping("/familia")
     public List<LenguaResponse> buscarPorFamilia(
-            @RequestParam String nombre,
-            HttpSession session
+            @RequestParam String nombre
     ) {
-
-        SessionUtil.requireEditor(session);
 
         return lenguaService.buscarPorFamilia(nombre);
     }
 
 
-    // =====================================================
     // RESUMEN DE UNA LENGUA
-    // EDITOR, ADMINISTRADOR O SUPER_USUARIO
-    // =====================================================
+    @PreAuthorize("hasAnyRole('EDITOR', 'ADMINISTRADOR', 'SUPER_USUARIO')")
     @GetMapping("/{id}/resumen")
     public LenguaResumenResponse obtenerResumen(
-            @PathVariable Long id,
-            HttpSession session
+            @PathVariable Long id
     ) {
-
-        SessionUtil.requireEditor(session);
 
         return lenguaService.obtenerResumen(id);
     }
 
 
-    // =====================================================
     // BUSCAR LENGUA POR ID
-    // EDITOR, ADMINISTRADOR O SUPER_USUARIO
-    // =====================================================
+    @PreAuthorize("hasAnyRole('EDITOR', 'ADMINISTRADOR', 'SUPER_USUARIO')")
     @GetMapping("/{id}")
     public LenguaResponse buscarPorId(
-            @PathVariable Long id,
-            HttpSession session
+            @PathVariable Long id
     ) {
-
-        SessionUtil.requireEditor(session);
 
         return lenguaService.buscarPorId(id);
     }
 
 
-    // =====================================================
     // CREAR LENGUA
-    // EDITOR, ADMINISTRADOR O SUPER_USUARIO
-    // =====================================================
+    @PreAuthorize("hasAnyRole('EDITOR', 'ADMINISTRADOR', 'SUPER_USUARIO')")
     @PostMapping
     public ResponseEntity<LenguaResponse> crear(
             @Valid
-            @RequestBody LenguaRequest request,
-            HttpSession session
+            @RequestBody LenguaRequest request
     ) {
-
-        SessionUtil.requireEditor(session);
 
         LenguaResponse creada =
                 lenguaService.crear(request);
@@ -160,19 +122,14 @@ public class LenguaController {
     }
 
 
-    // =====================================================
     // ACTUALIZAR COMPLETAMENTE
-    // EDITOR, ADMINISTRADOR O SUPER_USUARIO
-    // =====================================================
+    @PreAuthorize("hasAnyRole('EDITOR', 'ADMINISTRADOR', 'SUPER_USUARIO')")
     @PutMapping("/{id}")
     public LenguaResponse actualizar(
             @PathVariable Long id,
             @Valid
-            @RequestBody LenguaRequest request,
-            HttpSession session
+            @RequestBody LenguaRequest request
     ) {
-
-        SessionUtil.requireEditor(session);
 
         return lenguaService.actualizar(
                 id,
@@ -181,19 +138,14 @@ public class LenguaController {
     }
 
 
-    // =====================================================
     // ACTUALIZAR PARCIALMENTE
-    // EDITOR, ADMINISTRADOR O SUPER_USUARIO
-    // =====================================================
+    @PreAuthorize("hasAnyRole('EDITOR', 'ADMINISTRADOR', 'SUPER_USUARIO')")
     @PatchMapping("/{id}")
     public LenguaResponse actualizarParcial(
             @PathVariable Long id,
             @Valid
-            @RequestBody LenguaPatchRequest request,
-            HttpSession session
+            @RequestBody LenguaPatchRequest request
     ) {
-
-        SessionUtil.requireEditor(session);
 
         return lenguaService.actualizarParcial(
                 id,
@@ -202,17 +154,13 @@ public class LenguaController {
     }
 
 
-    // =====================================================
     // ELIMINAR LENGUA
-    // SOLO ADMINISTRADOR O SUPER_USUARIO
-    // =====================================================
+    // Solo ADMINISTRADOR o SUPER_USUARIO
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'SUPER_USUARIO')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(
-            @PathVariable Long id,
-            HttpSession session
+            @PathVariable Long id
     ) {
-
-        SessionUtil.requireAdmin(session);
 
         lenguaService.eliminar(id);
 
