@@ -1,13 +1,14 @@
 package com.diccionario.lenguamaterna.controller;
 
-import com.diccionario.lenguamaterna.config.SessionUtil;
+import com.diccionario.lenguamaterna.config.AuthUtil;
 import com.diccionario.lenguamaterna.dto.UserDtos.SugerenciaRequest;
 import com.diccionario.lenguamaterna.dto.UserDtos.SugerenciaResponse;
 import com.diccionario.lenguamaterna.service.SuggestionService;
-import jakarta.servlet.http.HttpSession;
+import org.springframework.security.core.Authentication;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 
@@ -21,23 +22,27 @@ public class SuggestionController {
     }
 
     @GetMapping("/mias")
-    public List<SugerenciaResponse> mias(HttpSession session) {
-        return suggestionService.mias(SessionUtil.requireUserId(session));
+    @PreAuthorize("isAuthenticated()")
+    public List<SugerenciaResponse> mias(Authentication authentication) {
+        return suggestionService.mias(AuthUtil.requireUserId(authentication));
     }
 
     @PostMapping
-    public SugerenciaResponse crear(@Valid @RequestBody SugerenciaRequest request, HttpSession session) {
-        return suggestionService.crear(SessionUtil.requireUserId(session), request);
+    @PreAuthorize("isAuthenticated()")
+    public SugerenciaResponse crear(@Valid @RequestBody SugerenciaRequest request, Authentication authentication) {
+        return suggestionService.crear(AuthUtil.requireUserId(authentication), request);
     }
 
     @PutMapping("/{id}")
-    public SugerenciaResponse editar(@PathVariable Long id, @Valid @RequestBody SugerenciaRequest request, HttpSession session) {
-        return suggestionService.editar(SessionUtil.requireUserId(session), id, request);
+    @PreAuthorize("isAuthenticated()")
+    public SugerenciaResponse editar(@PathVariable Long id, @Valid @RequestBody SugerenciaRequest request, Authentication authentication) {
+        return suggestionService.editar(AuthUtil.requireUserId(authentication), id, request);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id, HttpSession session) {
-        suggestionService.eliminar(SessionUtil.requireUserId(session), id);
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void> eliminar(@PathVariable Long id, Authentication authentication) {
+        suggestionService.eliminar(AuthUtil.requireUserId(authentication), id);
         return ResponseEntity.noContent().build();
     }
 }

@@ -86,7 +86,7 @@ public class DataInitializer implements CommandLineRunner {
         // =====================================================
 
         // ALEXIS - SUPER_USUARIO
-        crearOActualizarUsuario(
+        crearUsuarioSiNoExiste(
                 "Alexis",
                 "alexis_superusuario@diccionario.local",
                 "123456",
@@ -94,7 +94,7 @@ public class DataInitializer implements CommandLineRunner {
         );
 
         // KEVIN - ADMINISTRADOR
-        crearOActualizarUsuario(
+        crearUsuarioSiNoExiste(
                 "Kevin",
                 "kevin_administrador@diccionario.local",
                 "123456",
@@ -102,7 +102,7 @@ public class DataInitializer implements CommandLineRunner {
         );
 
         // VANESSA - EDITOR
-        crearOActualizarUsuario(
+        crearUsuarioSiNoExiste(
                 "Vanessa",
                 "vanessa_editor@diccionario.local",
                 "123456",
@@ -110,7 +110,7 @@ public class DataInitializer implements CommandLineRunner {
         );
 
         // KAREN - USUARIO
-        crearOActualizarUsuario(
+        crearUsuarioSiNoExiste(
                 "Karen",
                 "karen_usuario@diccionario.local",
                 "123456",
@@ -341,16 +341,15 @@ public class DataInitializer implements CommandLineRunner {
     // CREAR O ACTUALIZAR USUARIO
     // =====================================================
 
-    private void crearOActualizarUsuario(
+    private void crearUsuarioSiNoExiste(
             String nombre,
             String correo,
             String contrasena,
             Rol rol
     ) {
 
-        Usuario usuario = usuarioRepository
-                .findByCorreoIgnoreCase(correo)
-                .orElseGet(Usuario::new);
+        if (usuarioRepository.existsByCorreoIgnoreCase(correo)) return;
+        Usuario usuario = new Usuario();
 
         usuario.setNombre(nombre);
 

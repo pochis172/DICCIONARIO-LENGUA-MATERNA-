@@ -1,44 +1,38 @@
 package com.diccionario.lenguamaterna.controller;
 
-import com.diccionario.lenguamaterna.config.SessionUtil;
-import com.diccionario.lenguamaterna.dto.AuthDtos.LoginRequest;
-import com.diccionario.lenguamaterna.dto.AuthDtos.RegisterRequest;
-import com.diccionario.lenguamaterna.dto.AuthDtos.UsuarioResponse;
+import com.diccionario.lenguamaterna.config.AuthUtil;
+import com.diccionario.lenguamaterna.dto.AuthDtos.*;
 import com.diccionario.lenguamaterna.service.AuthService;
-import jakarta.servlet.http.HttpSession;
+import com.diccionario.lenguamaterna.service.JwtService;
+import com.diccionario.lenguamaterna.service.JwtService.AuthResponse;
 import jakarta.validation.Valid;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
     private final AuthService authService;
-
-    public AuthController(AuthService authService) {
-        this.authService = authService;
-    }
-
+    private final JwtService tokens;
+    public AuthController(AuthService authService, JwtService tokens) { this.authService = authService; this.tokens = tokens; }
     @PostMapping("/register")
-    public UsuarioResponse register(@Valid @RequestBody RegisterRequest request, HttpSession session) {
-        return authService.registrar(request, session);
-    }
-
+    @PreAuthorize("permitAll()")
+    @ResponseStatus(HttpStatus.CREATED)
+    public AuthResponse register(@Valid @RequestBody RegisterRequest request) { return tokens.issue(authService.registrar(request)); }
     @PostMapping("/login")
-    public UsuarioResponse login(@Valid @RequestBody LoginRequest request, HttpSession session) {
-        return authService.login(request, session);
-    }
-
+    @PreAuthorize("permitAll()")
+    public AuthResponse login(@Valid @RequestBody LoginRequest request) { return tokens.issue(authService.login(request)); }
     @GetMapping("/me")
-    public UsuarioResponse me(HttpSession session) {
-        return authService.me(SessionUtil.requireUserId(session));
-    }
-
+    @PreAuthorize("isAuthenticated()")
+    public UsuarioResponse me(Authentication authentication) { return authService.me(AuthUtil.requireUserId(authentication)); }
     @PostMapping("/logout")
-    public ResponseEntity<Map<String, String>> logout(HttpSession session) {
-        session.invalidate();
-        return ResponseEntity.ok(Map.of("mensaje", "Sesión cerrada."));
+    @PreAuthorize("isAuthenticated()")
+    public Map<String, String> logout(Authentication authentication) {
+        tokens.revoke(((JwtAuthenticationToken) authentication).getToken());
+        return Map.of("mensaje", "Sesión cerrada.");
     }
 }

@@ -1,18 +1,18 @@
 package com.diccionario.lenguamaterna.controller;
 
-import com.diccionario.lenguamaterna.config.SessionUtil;
 import com.diccionario.lenguamaterna.dto.AsignarRolRequest;
 import com.diccionario.lenguamaterna.dto.UsuarioCrudDtos.ActualizarUsuarioRequest;
 import com.diccionario.lenguamaterna.dto.UsuarioCrudDtos.CrearUsuarioRequest;
 import com.diccionario.lenguamaterna.dto.UsuarioCrudDtos.UsuarioResponse;
 import com.diccionario.lenguamaterna.service.UsuarioCrudService;
 
-import jakarta.servlet.http.HttpSession;
+import org.springframework.security.core.Authentication;
 import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 
@@ -35,13 +35,12 @@ public class UsuariosController {
     // =====================================================
 
     @PostMapping
+    @PreAuthorize("hasRole('SUPER_USUARIO')")
     public ResponseEntity<UsuarioResponse> crear(
             @Valid
             @RequestBody CrearUsuarioRequest request,
-            HttpSession session
+            Authentication authentication
     ) {
-
-        SessionUtil.requireSuperUser(session);
 
         UsuarioResponse usuarioCreado =
                 usuarioCrudService.crear(request);
@@ -58,11 +57,10 @@ public class UsuariosController {
     // =====================================================
 
     @GetMapping
+    @PreAuthorize("hasRole('SUPER_USUARIO')")
     public ResponseEntity<List<UsuarioResponse>> listar(
-            HttpSession session
+            Authentication authentication
     ) {
-
-        SessionUtil.requireSuperUser(session);
 
         return ResponseEntity.ok(
                 usuarioCrudService.listar()
@@ -76,12 +74,11 @@ public class UsuariosController {
     // =====================================================
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('SUPER_USUARIO')")
     public ResponseEntity<UsuarioResponse> buscarPorId(
             @PathVariable Long id,
-            HttpSession session
+            Authentication authentication
     ) {
-
-        SessionUtil.requireSuperUser(session);
 
         return ResponseEntity.ok(
                 usuarioCrudService.buscarPorId(id)
@@ -95,14 +92,13 @@ public class UsuariosController {
     // =====================================================
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('SUPER_USUARIO')")
     public ResponseEntity<UsuarioResponse> actualizar(
             @PathVariable Long id,
             @Valid
             @RequestBody ActualizarUsuarioRequest request,
-            HttpSession session
+            Authentication authentication
     ) {
-
-        SessionUtil.requireSuperUser(session);
 
         return ResponseEntity.ok(
                 usuarioCrudService.actualizar(
@@ -119,14 +115,13 @@ public class UsuariosController {
     // =====================================================
 
     @PatchMapping("/{id}/rol")
+    @PreAuthorize("hasRole('SUPER_USUARIO')")
     public ResponseEntity<UsuarioResponse> asignarRol(
             @PathVariable Long id,
             @Valid
             @RequestBody AsignarRolRequest request,
-            HttpSession session
+            Authentication authentication
     ) {
-
-        SessionUtil.requireSuperUser(session);
 
         return ResponseEntity.ok(
                 usuarioCrudService.asignarRol(
@@ -143,12 +138,11 @@ public class UsuariosController {
     // =====================================================
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('SUPER_USUARIO')")
     public ResponseEntity<Void> eliminar(
             @PathVariable Long id,
-            HttpSession session
+            Authentication authentication
     ) {
-
-        SessionUtil.requireSuperUser(session);
 
         usuarioCrudService.eliminar(id);
 

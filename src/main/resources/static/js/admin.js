@@ -7,7 +7,7 @@ let conversionSuggestionId = null;
 document.addEventListener('DOMContentLoaded', async () => {
   adminUser = await App.setupNav();
   if (!adminUser) { location.href = '/login.html?next=/admin.html'; return; }
-  if (adminUser.rol !== 'ADMINISTRADOR') { location.href = '/perfil.html'; return; }
+  if (!['ADMINISTRADOR','SUPER_USUARIO'].includes(adminUser.rol)) { location.href = '/perfil.html'; return; }
 
   document.querySelectorAll('[data-panel]').forEach(b => b.onclick = () => openPanel(b.dataset.panel));
   document.querySelectorAll('[data-close-word]').forEach(b => b.onclick = closeWordModal);

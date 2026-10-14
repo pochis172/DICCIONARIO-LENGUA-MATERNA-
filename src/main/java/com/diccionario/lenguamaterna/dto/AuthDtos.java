@@ -13,7 +13,7 @@ public final class AuthDtos {
     ) {}
 
     public record RegisterRequest(
-        @NotBlank @Size(max = 100) String nombre,
+        @NotBlank @Size(min = 3, max = 100) String nombre,
         @NotBlank @Email @Size(max = 120) String correo,
         @NotBlank @Size(min = 6, max = 100) String contrasena,
         boolean aceptaTerminos

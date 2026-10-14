@@ -1,18 +1,18 @@
 package com.diccionario.lenguamaterna.controller;
 
-import com.diccionario.lenguamaterna.config.SessionUtil;
 import com.diccionario.lenguamaterna.dto.LenguaDtos.LenguaPatchRequest;
 import com.diccionario.lenguamaterna.dto.LenguaDtos.LenguaRequest;
 import com.diccionario.lenguamaterna.dto.LenguaDtos.LenguaResponse;
 import com.diccionario.lenguamaterna.dto.LenguaDtos.LenguaResumenResponse;
 import com.diccionario.lenguamaterna.service.LenguaService;
 
-import jakarta.servlet.http.HttpSession;
+import org.springframework.security.core.Authentication;
 import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 
@@ -32,11 +32,10 @@ public class LenguaController {
     // EDITOR, ADMINISTRADOR O SUPER_USUARIO
     // =====================================================
     @GetMapping
+    @PreAuthorize("hasAnyRole('EDITOR','ADMINISTRADOR','SUPER_USUARIO')")
     public List<LenguaResponse> listar(
-            HttpSession session
+            Authentication authentication
     ) {
-
-        SessionUtil.requireEditor(session);
 
         return lenguaService.listar();
     }
@@ -47,12 +46,11 @@ public class LenguaController {
     // EDITOR, ADMINISTRADOR O SUPER_USUARIO
     // =====================================================
     @GetMapping("/buscar")
+    @PreAuthorize("hasAnyRole('EDITOR','ADMINISTRADOR','SUPER_USUARIO')")
     public List<LenguaResponse> buscarPorNombre(
             @RequestParam String nombre,
-            HttpSession session
+            Authentication authentication
     ) {
-
-        SessionUtil.requireEditor(session);
 
         return lenguaService.buscarPorNombre(nombre);
     }
@@ -63,12 +61,11 @@ public class LenguaController {
     // EDITOR, ADMINISTRADOR O SUPER_USUARIO
     // =====================================================
     @GetMapping("/region/{regionId}")
+    @PreAuthorize("hasAnyRole('EDITOR','ADMINISTRADOR','SUPER_USUARIO')")
     public List<LenguaResponse> buscarPorRegion(
             @PathVariable Long regionId,
-            HttpSession session
+            Authentication authentication
     ) {
-
-        SessionUtil.requireEditor(session);
 
         return lenguaService.buscarPorRegion(regionId);
     }
@@ -79,12 +76,11 @@ public class LenguaController {
     // EDITOR, ADMINISTRADOR O SUPER_USUARIO
     // =====================================================
     @GetMapping("/region")
+    @PreAuthorize("hasAnyRole('EDITOR','ADMINISTRADOR','SUPER_USUARIO')")
     public List<LenguaResponse> buscarPorNombreRegion(
             @RequestParam String nombre,
-            HttpSession session
+            Authentication authentication
     ) {
-
-        SessionUtil.requireEditor(session);
 
         return lenguaService.buscarPorNombreRegion(nombre);
     }
@@ -95,12 +91,11 @@ public class LenguaController {
     // EDITOR, ADMINISTRADOR O SUPER_USUARIO
     // =====================================================
     @GetMapping("/familia")
+    @PreAuthorize("hasAnyRole('EDITOR','ADMINISTRADOR','SUPER_USUARIO')")
     public List<LenguaResponse> buscarPorFamilia(
             @RequestParam String nombre,
-            HttpSession session
+            Authentication authentication
     ) {
-
-        SessionUtil.requireEditor(session);
 
         return lenguaService.buscarPorFamilia(nombre);
     }
@@ -111,12 +106,11 @@ public class LenguaController {
     // EDITOR, ADMINISTRADOR O SUPER_USUARIO
     // =====================================================
     @GetMapping("/{id}/resumen")
+    @PreAuthorize("hasAnyRole('EDITOR','ADMINISTRADOR','SUPER_USUARIO')")
     public LenguaResumenResponse obtenerResumen(
             @PathVariable Long id,
-            HttpSession session
+            Authentication authentication
     ) {
-
-        SessionUtil.requireEditor(session);
 
         return lenguaService.obtenerResumen(id);
     }
@@ -127,12 +121,11 @@ public class LenguaController {
     // EDITOR, ADMINISTRADOR O SUPER_USUARIO
     // =====================================================
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('EDITOR','ADMINISTRADOR','SUPER_USUARIO')")
     public LenguaResponse buscarPorId(
             @PathVariable Long id,
-            HttpSession session
+            Authentication authentication
     ) {
-
-        SessionUtil.requireEditor(session);
 
         return lenguaService.buscarPorId(id);
     }
@@ -143,13 +136,12 @@ public class LenguaController {
     // EDITOR, ADMINISTRADOR O SUPER_USUARIO
     // =====================================================
     @PostMapping
+    @PreAuthorize("hasAnyRole('EDITOR','ADMINISTRADOR','SUPER_USUARIO')")
     public ResponseEntity<LenguaResponse> crear(
             @Valid
             @RequestBody LenguaRequest request,
-            HttpSession session
+            Authentication authentication
     ) {
-
-        SessionUtil.requireEditor(session);
 
         LenguaResponse creada =
                 lenguaService.crear(request);
@@ -165,14 +157,13 @@ public class LenguaController {
     // EDITOR, ADMINISTRADOR O SUPER_USUARIO
     // =====================================================
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('EDITOR','ADMINISTRADOR','SUPER_USUARIO')")
     public LenguaResponse actualizar(
             @PathVariable Long id,
             @Valid
             @RequestBody LenguaRequest request,
-            HttpSession session
+            Authentication authentication
     ) {
-
-        SessionUtil.requireEditor(session);
 
         return lenguaService.actualizar(
                 id,
@@ -186,14 +177,13 @@ public class LenguaController {
     // EDITOR, ADMINISTRADOR O SUPER_USUARIO
     // =====================================================
     @PatchMapping("/{id}")
+    @PreAuthorize("hasAnyRole('EDITOR','ADMINISTRADOR','SUPER_USUARIO')")
     public LenguaResponse actualizarParcial(
             @PathVariable Long id,
             @Valid
             @RequestBody LenguaPatchRequest request,
-            HttpSession session
+            Authentication authentication
     ) {
-
-        SessionUtil.requireEditor(session);
 
         return lenguaService.actualizarParcial(
                 id,
@@ -207,12 +197,11 @@ public class LenguaController {
     // SOLO ADMINISTRADOR O SUPER_USUARIO
     // =====================================================
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','SUPER_USUARIO')")
     public ResponseEntity<Void> eliminar(
             @PathVariable Long id,
-            HttpSession session
+            Authentication authentication
     ) {
-
-        SessionUtil.requireAdmin(session);
 
         lenguaService.eliminar(id);
 

@@ -7,7 +7,7 @@ import com.diccionario.lenguamaterna.entity.Rol;
 import com.diccionario.lenguamaterna.entity.Usuario;
 import com.diccionario.lenguamaterna.repository.RolRepository;
 import com.diccionario.lenguamaterna.repository.UsuarioRepository;
-import jakarta.servlet.http.HttpSession;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,7 +27,7 @@ public class AuthService {
     }
 
     @Transactional
-    public UsuarioResponse registrar(RegisterRequest request, HttpSession session) {
+    public UsuarioResponse registrar(RegisterRequest request) {
         if (!request.aceptaTerminos()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Debes aceptar los términos y condiciones.");
         }
@@ -45,18 +45,16 @@ public class AuthService {
         usuario.setContrasena(passwordEncoder.encode(request.contrasena()));
         usuario.setRol(rolUsuario);
         usuarioRepository.save(usuario);
-        guardarSesion(usuario, session);
         return toResponse(usuario);
     }
 
-    public UsuarioResponse login(LoginRequest request, HttpSession session) {
+    public UsuarioResponse login(LoginRequest request) {
         Usuario usuario = usuarioRepository.findByCorreoIgnoreCase(request.correo().trim())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Correo o contraseña incorrectos."));
 
         if (!passwordEncoder.matches(request.contrasena(), usuario.getContrasena())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Correo o contraseña incorrectos.");
         }
-        guardarSesion(usuario, session);
         return toResponse(usuario);
     }
 
@@ -66,10 +64,6 @@ public class AuthService {
         return toResponse(usuario);
     }
 
-    private void guardarSesion(Usuario usuario, HttpSession session) {
-        session.setAttribute("usuarioId", usuario.getId());
-        session.setAttribute("rol", usuario.getRol().getNombre());
-    }
 
     public UsuarioResponse toResponse(Usuario usuario) {
         return new UsuarioResponse(usuario.getId(), usuario.getNombre(), usuario.getCorreo(), usuario.getRol().getNombre());

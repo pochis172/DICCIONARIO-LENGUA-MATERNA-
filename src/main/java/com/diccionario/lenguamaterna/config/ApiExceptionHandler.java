@@ -27,9 +27,19 @@ public class ApiExceptionHandler {
         return ResponseEntity.badRequest().body(error(message));
     }
 
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    public ResponseEntity<Map<String, Object>> forbidden(Exception ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error("No tienes permisos para esta acción."));
+    }
+
+    @ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, Object>> invalidJson(Exception ex) {
+        return ResponseEntity.badRequest().body(error("El cuerpo JSON no es válido."));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> generic(Exception ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error("Ocurrió un error interno: " + ex.getMessage()));
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error("Ocurrió un error interno."));
     }
 
     private Map<String, Object> error(String message) {

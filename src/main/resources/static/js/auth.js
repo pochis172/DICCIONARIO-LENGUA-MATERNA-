@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
   const user = await App.currentUser();
-  if (user) location.href = user.rol === 'ADMINISTRADOR' ? '/admin.html' : '/perfil.html';
+  if (user) location.href = ['ADMINISTRADOR','SUPER_USUARIO'].includes(user.rol) ? '/admin.html' : '/perfil.html';
 
   const login = document.getElementById('loginForm');
   if (login) login.addEventListener('submit', async e => {
@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
       const u = await App.request('/api/auth/login',{method:'POST',body:JSON.stringify({correo:correo.value.trim(),contrasena:contrasena.value})});
       const next = new URLSearchParams(location.search).get('next');
-      location.href = next || (u.rol === 'ADMINISTRADOR' ? '/admin.html' : '/perfil.html');
+      location.href = next || (['ADMINISTRADOR','SUPER_USUARIO'].includes(u.rol) ? '/admin.html' : '/perfil.html');
     } catch(err){ showMessage(err.message,true); }
   });
 

@@ -1,11 +1,12 @@
 package com.diccionario.lenguamaterna.controller;
 
-import com.diccionario.lenguamaterna.config.SessionUtil;
+import com.diccionario.lenguamaterna.config.AuthUtil;
 import com.diccionario.lenguamaterna.dto.DictionaryDtos.LenguaResponse;
 import com.diccionario.lenguamaterna.dto.DictionaryDtos.PalabraResponse;
 import com.diccionario.lenguamaterna.service.DictionaryService;
-import jakarta.servlet.http.HttpSession;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 
@@ -19,30 +20,35 @@ public class DictionaryController {
     }
 
     @GetMapping("/buscar")
+    @PreAuthorize("permitAll()")
     public List<PalabraResponse> buscar(@RequestParam String q,
                                         @RequestParam(required = false) Long lenguaId,
-                                        HttpSession session) {
-        return dictionaryService.buscar(q, lenguaId, SessionUtil.optionalUserId(session));
+                                        Authentication authentication) {
+        return dictionaryService.buscar(q, lenguaId, AuthUtil.optionalUserId(authentication));
     }
 
     @GetMapping("/palabras")
+    @PreAuthorize("permitAll()")
     public List<PalabraResponse> palabras(@RequestParam(required = false) String q,
                                           @RequestParam(required = false) String categoria,
-                                          HttpSession session) {
-        return dictionaryService.listar(q, categoria, SessionUtil.optionalUserId(session));
+                                          Authentication authentication) {
+        return dictionaryService.listar(q, categoria, AuthUtil.optionalUserId(authentication));
     }
 
     @GetMapping("/palabras/{id}")
-    public PalabraResponse palabra(@PathVariable Long id, HttpSession session) {
-        return dictionaryService.obtener(id, SessionUtil.optionalUserId(session));
+    @PreAuthorize("permitAll()")
+    public PalabraResponse palabra(@PathVariable Long id, Authentication authentication) {
+        return dictionaryService.obtener(id, AuthUtil.optionalUserId(authentication));
     }
 
     @GetMapping("/categorias")
+    @PreAuthorize("permitAll()")
     public List<String> categorias() {
         return dictionaryService.categorias();
     }
 
     @GetMapping("/lenguas")
+    @PreAuthorize("permitAll()")
     public List<LenguaResponse> lenguas() {
         return dictionaryService.lenguas();
     }

@@ -88,14 +88,9 @@ Luego abre:
 http://localhost:8080
 ```
 
-## Usuario administrador de demostración
+## Seguridad JWT y sustentación individual
 
-```text
-Correo: admin@diccionario.local
-Contraseña: Admin123*
-```
-
-Cámbialo antes de usar el proyecto fuera de un entorno académico.
+Consulta [la guía de seguridad](docs/SEGURIDAD-SUSTENTACION.md) para cuentas vigentes, matriz completa, arranque sin MySQL y demostración. Importa [la colección Postman](docs/postman/Seguridad.postman_collection.json). El login/registro devuelve `token`; las rutas privadas requieren `Authorization: Bearer <token>`.
 
 ## Datos iniciales
 

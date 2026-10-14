@@ -2,10 +2,15 @@ window.App = (() => {
   async function request(url, options = {}) {
     const headers = {...(options.headers || {})};
     if (options.body && !(options.body instanceof FormData)) headers['Content-Type'] = 'application/json';
+    const token = sessionStorage.getItem('jwt');
+    if (token && url.startsWith('/api/') && !['/api/auth/login', '/api/auth/register'].includes(url)) headers.Authorization = `Bearer ${token}`;
     const res = await fetch(url, {...options, headers});
     if (res.status === 204) return null;
     const type = res.headers.get('content-type') || '';
     const data = type.includes('application/json') ? await res.json() : await res.text();
+    if (res.status === 401) sessionStorage.removeItem('jwt');
+    if (res.ok && data?.token) sessionStorage.setItem('jwt', data.token);
+    if (res.ok && url === '/api/auth/logout') sessionStorage.removeItem('jwt');
     if (!res.ok) throw new Error(data?.error || data?.message || `Error ${res.status}`);
     return data;
   }
@@ -23,7 +28,7 @@ window.App = (() => {
     const user = await currentUser();
     document.querySelectorAll('[data-user-only]').forEach(el => el.classList.toggle('hidden', !user));
     document.querySelectorAll('[data-guest-only]').forEach(el => el.classList.toggle('hidden', !!user));
-    document.querySelectorAll('[data-admin-only]').forEach(el => el.classList.toggle('hidden', user?.rol !== 'ADMINISTRADOR'));
+    document.querySelectorAll('[data-admin-only]').forEach(el => el.classList.toggle('hidden', !['ADMINISTRADOR','SUPER_USUARIO'].includes(user?.rol)));
     document.querySelectorAll('[data-user-name]').forEach(el => el.textContent = user?.nombre || 'Perfil');
     document.querySelectorAll('[data-logout]').forEach(el => el.onclick = async () => { await request('/api/auth/logout',{method:'POST'}); location.href='/'; });
     return user;

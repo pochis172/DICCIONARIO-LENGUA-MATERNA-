@@ -18,6 +18,7 @@
             ...options,
             headers: {
                 "Content-Type": "application/json",
+                ...(sessionStorage.getItem("jwt") ? {Authorization: "Bearer " + sessionStorage.getItem("jwt")} : {}),
                 ...(options.headers || {})
             }
         });
