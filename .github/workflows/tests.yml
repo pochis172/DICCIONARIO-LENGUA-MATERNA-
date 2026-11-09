@@ -1,0 +1,35 @@
+name: Pruebas Maven
+
+on:
+  push:
+    branches:
+      - "test/**"
+
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: Ejecutar pruebas
+    runs-on: ubuntu-latest
+
+    env:
+      JWT_SECRET: clave-segura-github-actions-diccionario-2026-123456789
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Ejecutar pruebas Maven
+        run: mvn -B test
