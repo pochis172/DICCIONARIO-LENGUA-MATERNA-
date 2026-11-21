@@ -3,9 +3,14 @@ DICCIONARIO DE LENGUAS MATERNAS - PROYECTO WEB
 1) Abre esta carpeta completa en Visual Studio Code.
 2) Inicia MySQL (por ejemplo desde XAMPP).
 3) Abre la terminal de VS Code.
-4) Ejecuta en Windows:
+4) Define la clave JWT (minimo 32 caracteres) y ejecuta en Windows:
 
+   $env:JWT_SECRET="una-clave-larga-de-al-menos-32-caracteres"
    .\mvnw.cmd spring-boot:run
+
+   Para probar sin MySQL (base H2 local):
+
+   .\mvnw.cmd spring-boot:run "-Dspring-boot.run.profiles=local"
 
 5) Espera a que aparezca que Spring inició en el puerto 8080.
 6) Abre en el navegador:
@@ -21,9 +26,11 @@ CONFIGURACIÓN MYSQL POR DEFECTO
 
 Si MySQL tiene contraseña, revisa README.md.
 
-ADMINISTRADOR DE DEMOSTRACIÓN
-correo: admin@diccionario.local
-contraseña: Admin123*
+USUARIOS DE DEMOSTRACIÓN (contraseña: 123456)
+- kevin_administrador@diccionario.local (ADMINISTRADOR)
+- alexis_superusuario@diccionario.local (SUPER_USUARIO)
+- vanessa_editor@diccionario.local (EDITOR)
+- karen_usuario@diccionario.local (USUARIO)
 
 IMPORTANTE:
 La aplicación crea las tablas automáticamente con JPA y también se incluye database/schema.sql como respaldo académico.

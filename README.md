@@ -44,12 +44,12 @@ La implementación usa las entidades documentadas en el proyecto:
 
 `roles`, `usuarios`, `regiones`, `lenguas`, `palabras`, `traducciones`, `ejemplos`, `audios`, `historial`, `favoritos` y `sugerencias`.
 
-### Decisiones de implementación
+### Notas de diseño
 
-1. El demo entregado traía PostgreSQL, pero el diagrama de componentes del proyecto especifica **MySQL**, por eso esta versión usa MySQL.
-2. En una página del diccionario de datos aparece `ID_IDIOMA` dentro de TRADUCCIÓN, pero el diagrama entidad-relación no define una entidad IDIOMA. Para evitar una relación huérfana, la versión implementada usa `id_lengua`, que sí existe en el modelo y en las relaciones documentadas.
-3. El significado y la categoría se incluyen en PALABRAS porque aparecen en el diagrama de clases, el alcance funcional y los mockups web.
-4. La recuperación de contraseña por correo queda fuera de esta primera versión porque requiere un proveedor de correo y flujo de tokens. El resto del inicio de sesión y registro sí funciona.
+- La base de datos es MySQL, como indica el diagrama de componentes.
+- Las traducciones se relacionan con `id_lengua`, porque el modelo entidad-relación no define una entidad `IDIOMA`.
+- El significado y la categoría se guardan en `palabras`, según el diagrama de clases.
+- La recuperación de contraseña por correo no está incluida: requiere un proveedor de correo y un flujo de tokens.
 
 ## Cómo abrirlo en Visual Studio Code
 
@@ -69,17 +69,23 @@ Base de datos: diccionario_lengua_materna
 
 La base se crea automáticamente si el usuario de MySQL tiene permisos.
 
-Si tu MySQL tiene contraseña, en PowerShell puedes usar:
+La aplicación necesita la variable `JWT_SECRET` (mínimo 32 caracteres) para firmar los tokens. En PowerShell:
 
 ```powershell
-$env:DB_PASSWORD="TU_CONTRASEÑA"
+$env:JWT_SECRET="una-clave-larga-de-al-menos-32-caracteres"
 .\mvnw.cmd spring-boot:run
 ```
 
-Con root sin contraseña:
+Si tu MySQL tiene contraseña, define también `DB_PASSWORD` antes de iniciar:
 
 ```powershell
-.\mvnw.cmd spring-boot:run
+$env:DB_PASSWORD="TU_CONTRASEÑA"
+```
+
+Para probar sin MySQL puedes usar la base H2 local con el perfil `local` (no requiere `JWT_SECRET`):
+
+```powershell
+.\mvnw.cmd spring-boot:run "-Dspring-boot.run.profiles=local"
 ```
 
 Luego abre:
@@ -88,14 +94,18 @@ Luego abre:
 http://localhost:8080
 ```
 
-## Usuario administrador de demostración
+## Usuarios de demostración
 
-```text
-Correo: admin@diccionario.local
-Contraseña: Admin123*
-```
+Se crean al iniciar la aplicación. Todos usan la contraseña `123456`.
 
-Cámbialo antes de usar el proyecto fuera de un entorno académico.
+| Correo | Rol |
+|---|---|
+| kevin_administrador@diccionario.local | ADMINISTRADOR |
+| alexis_superusuario@diccionario.local | SUPER_USUARIO |
+| vanessa_editor@diccionario.local | EDITOR |
+| karen_usuario@diccionario.local | USUARIO |
+
+Cambia estas credenciales antes de usar el proyecto fuera de un entorno académico.
 
 ## Datos iniciales
 

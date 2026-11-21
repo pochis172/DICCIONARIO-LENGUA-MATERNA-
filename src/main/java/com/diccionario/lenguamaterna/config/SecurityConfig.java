@@ -120,6 +120,17 @@ public class SecurityConfig {
                                 )
                                 .permitAll()
 
+                                // Paginas y recursos estaticos del sitio
+                                .requestMatchers(
+                                        "/",
+                                        "/*.html",
+                                        "/css/**",
+                                        "/js/**",
+                                        "/favicon.ico",
+                                        "/error"
+                                )
+                                .permitAll()
+
                                 // Las demas rutas necesitan JWT
                                 .anyRequest()
                                 .authenticated()
