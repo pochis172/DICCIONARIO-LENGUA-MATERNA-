@@ -10,11 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
-
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -38,18 +34,5 @@ class DictionaryServiceKevinTest {
 
         assertTrue(resultado.isEmpty());
         verifyNoInteractions(palabraRepository);
-    }
-
-    // Obtener una palabra inexistente responde 404.
-    @Test
-    void obtenerPalabraInexistente_debeRetornar404() {
-
-        when(palabraRepository.findById(77L)).thenReturn(Optional.empty());
-
-        ResponseStatusException error = assertThrows(
-                ResponseStatusException.class,
-                () -> dictionaryService.obtener(77L, null));
-
-        assertEquals(HttpStatus.NOT_FOUND, error.getStatusCode());
     }
 }

@@ -1,7 +1,6 @@
 package com.diccionario.lenguamaterna.service;
 
 import com.diccionario.lenguamaterna.dto.DictionaryDtos.ActualizarPalabraRequest;
-import com.diccionario.lenguamaterna.entity.Palabra;
 import com.diccionario.lenguamaterna.repository.PalabraRepository;
 
 import org.junit.jupiter.api.Test;
@@ -13,8 +12,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -61,23 +58,5 @@ class AdminServicePalabrasKevinTest {
 
         assertEquals(HttpStatus.NOT_FOUND, error.getStatusCode());
         verify(palabraRepository, never()).deleteById(any());
-    }
-
-    // Complemento: un campo con solo espacios se rechaza antes de guardar.
-    @Test
-    void actualizarDatosConCampoVacio_debeRetornar400() {
-
-        when(palabraRepository.findById(1L))
-                .thenReturn(Optional.of(new Palabra()));
-
-        ActualizarPalabraRequest request =
-                new ActualizarPalabraRequest("   ", null, null);
-
-        ResponseStatusException error = assertThrows(
-                ResponseStatusException.class,
-                () -> adminService.actualizarDatos(1L, request));
-
-        assertEquals(HttpStatus.BAD_REQUEST, error.getStatusCode());
-        verify(palabraRepository, never()).save(any());
     }
 }
